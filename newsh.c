@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <time.h>
+#include <sys/utsname.h>
 
 void config_terminal(char * terminal) {
   char *usuario;
@@ -32,7 +33,7 @@ void config_terminal(char * terminal) {
 }
 
 void le_comando(char **comando, char **parametros) {
-  char terminal[1024] = "";
+  char terminal[500] = "";
   char *linha;
 
   config_terminal(terminal);
@@ -44,18 +45,18 @@ void le_comando(char **comando, char **parametros) {
   *parametros = linha;
 }
 
-void executa_bin(char *path, char *parametros) {
-  pid_t child;
+void executa_bin(char *caminho, char *parametros) {
+  pid_t filho;
   int i = 1, j, pos = -1;
   char *args[30];
 
-  for (j = 0; path[j] != '\0' ; j++)
-    if (path[j] == '/')
+  for (j = 0; caminho[j] != '\0' ; j++)
+    if (caminho[j] == '/')
       pos = j;
 
   if (j != 0) {
     pos++;
-    args[0] = &path[pos];
+    args[0] = &caminho[pos];
 
     while (parametros != NULL) {
       args[i] = strsep(&parametros, " ");
@@ -64,9 +65,9 @@ void executa_bin(char *path, char *parametros) {
 
     args[i] = NULL;
 
-    if ((child = fork()) == 0) {
-      if (execvp(path, args) != 0) {
-        printf("COMANDO INVÁLIDO!!!\n");
+    if ((filho = fork()) == 0) {
+      if (execvp(caminho, args) != 0) {
+        printf("Esse comando nao eh valido\n");
         exit(1);
       }
     }
@@ -77,68 +78,38 @@ void executa_bin(char *path, char *parametros) {
 }
 
 int executa_comando(char *comando, char *parametros) {
-  char *flag, *oldname, *newname;
-  int executing = 1;
+  int ligado = 1;
 
-  if (strcmp(comando, "mkdir") == 0) {
-    if (mkdir(parametros, 0755) == 0) {
-      printf("Criado diretório %s\n", parametros);
-    }
-    else {
-      printf("Deu ruim!\n");
-    }
-  }
-  else if (strcmp(comando, "kill") == 0) {
-    int signal;
-    pid_t pid;
-
-    flag = strsep(&parametros, " ");
-    signal = flag[1] - '0';
-    pid = atoi(parametros);
-
-    printf("Flag: %s\n", flag);
-    printf("Signal: %d\n", signal);
-    printf("PID: %d\n", pid);
-    
-    if (kill(pid, signal) == 0) {
-      printf("Processo %d finalizado!\n", pid);
-    }
-    else {
-      printf("Deu ruim!\n");
-    }
-  }
-  else if (strcmp(comando, "ln") == 0) {
-    flag = strsep(&parametros, " ");
-    oldname = strsep(&parametros, " ");
-    newname = parametros;
-
-    printf("Flag: %s\n", flag);
-    printf("Oldname: %s\n", oldname);
-    printf("Newname: %s\n", newname);
-    
-    if (symlink(oldname, newname) == 0) {
-      printf("Link para %s criado com sucesso!\n", oldname);
-    }
-    else {
-      printf("Deu ruim!\n");
-    }
-  }
-  else if (strcmp(comando, "cd") == 0) {
+  if (strcmp(comando, "cd") == 0) {
     if (chdir(parametros) == 0) {
-      printf("Deu certo!\n");
+      printf("%s" , parametros);
     }
     else {
-      printf("Diretório inválido!\n");
+      printf("Erro\n");
     }
+  }
+  else if (strcmp(comando, "rm") == 0) {
+    if (unlink(parametros) == 0) {
+      printf("Arquivo removido: %s\n", parametros);
+    }
+    else {
+      printf("Erro\n");
+    }
+  }
+  else if (strcmp(comando, "uname") == 0) {
+    struct utsname u;
+    uname (&u);
+    printf ("%s release %s (version %s) on %s\n", u.sysname, u.release, 
+     u.version, u.machine);
   }
   else if (strcmp(comando, "exit") == 0) {
-    executing = 0;
+    ligado = 0;
   }
   else {
     executa_bin(comando, parametros);
   }
 
-  return executing;
+  return ligado;
 }
 
 int main(int argc, char **argv) {
