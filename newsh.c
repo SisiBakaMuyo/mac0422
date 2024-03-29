@@ -101,7 +101,7 @@ void config_terminal(char * terminal) {
 }
 
 void le_comando(char **comando, char **parametros) {
-  char terminal[500] = "";
+  char terminal[1024] = "";
   char *linha;
 
   config_terminal(terminal);
