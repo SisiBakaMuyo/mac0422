@@ -18,32 +18,6 @@
 #include <time.h>
 #include <sys/utsname.h>
 
-void config_terminal(char * terminal) {
-  char *usuario;
-  usuario = getenv("USER");
-  char hora[40];
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  strftime(hora, 40, "%T", localtime(&time.tv_sec));
-
-  strcat(terminal, usuario);
-  strcat(terminal, " [");
-  strcat(terminal, hora);
-  strcat(terminal, "]: ");
-}
-
-void le_comando(char **comando, char **parametros) {
-  char terminal[500] = "";
-  char *linha;
-
-  config_terminal(terminal);
-  linha = readline(terminal);
-
-  add_history(linha);
-
-  *comando = strsep(&linha, " ");
-  *parametros = linha;
-}
 
 void executa_bin(char *caminho, char *parametros) {
   pid_t filho;
@@ -110,6 +84,33 @@ int executa_comando(char *comando, char *parametros) {
   }
 
   return ligado;
+}
+
+void config_terminal(char * terminal) {
+  char *usuario;
+  usuario = getenv("USER");
+  char hora[40];
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  strftime(hora, 40, "%T", localtime(&time.tv_sec));
+
+  strcat(terminal, usuario);
+  strcat(terminal, " [");
+  strcat(terminal, hora);
+  strcat(terminal, "]: ");
+}
+
+void le_comando(char **comando, char **parametros) {
+  char terminal[500] = "";
+  char *linha;
+
+  config_terminal(terminal);
+  linha = readline(terminal);
+
+  add_history(linha);
+
+  *comando = strsep(&linha, " ");
+  *parametros = linha;
 }
 
 int main(int argc, char **argv) {
