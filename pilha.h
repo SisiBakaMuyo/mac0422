@@ -1,7 +1,7 @@
 #ifndef PILHA_H
 #define PILHA_H
 
-#include "process.h"
+#include "processo.h"
 
 typedef struct{
 	process **v;

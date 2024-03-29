@@ -1,5 +1,5 @@
-#ifndef FILEREADER_H
-#define FILEREADER_H
+#ifndef LEITORARQUIVO_H
+#define LEITORARQUIVO_H
 
 #include <stdio.h>
 #include <stdlib.h>
