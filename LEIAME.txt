@@ -1,0 +1,21 @@
+Ísis Ardisson Logullo - 7577410
+
+Executáveis do EP1:
+
+Com o comando "make" os dois executaveis são gerados.
+É possível gerar os executaveis separadamente com os comandos:
+"make shell" e "make simprocess".
+
+Shell:
+
+Execute o shell com o comando "./shell"
+Foram implementados os comandos pedidos.
+Reconhece ls, cd, rm, uname e exit.
+Permite a invocação de executáveis.
+
+Simulador de Processos:
+
+Execute o simulador com o comando "./simprocess arg1 arg2 arg3"
+arg1 - 1 = Sortest Job First, 2 = Round Robin, 3 = Escalonamento com prioridade
+arg2 - Arquivo de trace
+arg3 - Arquivo de output
