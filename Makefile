@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-ansi -Wall -pedantic -O2
-EP1SHELL=newsh.c leitorSring.o
-EP1SIMPROCESS = ep1.c leitorArquivo.o pilha.o fila.o processo.h
+EP1SHELL=newsh.c 
+EP1SIMPROCESS = ep1.c 
 
 all: shell simprocess clean
 
