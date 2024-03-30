@@ -108,7 +108,7 @@ void insere(fila *f, processo *x) {
 	(f->tam)++;
 }
 
-processo *remove(fila *f) {
+processo *removeFila(fila *f) {
 	processo *p;
 
 	if (filaVazia(f))
@@ -127,6 +127,70 @@ void destroiFila(fila *f) {
         (f->tam)--;
     }
 	free(f);
+}
+
+/* leitura */
+linha *criaLinha(int n) {
+	linha *l;
+	l = malloc(sizeof(linha));
+	l->nome = malloc(n * sizeof(char));
+	return l;
+}
+
+linha **leArquivo(char *nomeArquivo, int *contadorLinha) {
+	char c;
+	int i, j;
+	FILE *file;
+	linha **dados;
+	int elementoLinha = 1; /* (1 = t0, 2 = dt, 3 = deadline, 4 = nome) */
+	char buf[MAX_LINE_SIZE / 4];
+
+	i = j = 0; 
+	dados = malloc(sizeof(linha*));
+	dados[0] = criaLinha(MAX_LINE_SIZE);
+	file = fopen(nomeArquivo, "r");
+
+	if (!file) {
+		printf("Erro\n");
+		return NULL;
+	}
+
+	while( (c = getc(file)) != EOF ) {
+		if (c == ' ') { 
+			buf[i] = '\0';
+			
+			if (elementoLinha == 1)
+				dados[j]->t0 = atof(buf);
+			else if (elementoLinha == 2)
+				dados[j]->dt = atof(buf);
+			else 
+				dados[j]->deadline = atof(buf);
+
+			elementoLinha++;
+			i = 0;
+		}
+		else if (c == '\n') { 
+			buf[i] = '\0';
+			strcpy(dados[j]->nome, buf);
+			i = 0;
+			elementoLinha = 1;
+			j++;
+			dados = realloc(dados, (j+1)*sizeof(linha));
+			dados[j] = criaLinha(MAX_LINE_SIZE / 4);
+		}
+		else{
+			buf[i] = c;
+			i++;
+		}
+	}
+
+	buf[i] = '\0';
+	strcpy(dados[j]->nome, buf);
+	j++;
+	*contadorLinha = j;
+	fclose(file);
+
+	return dados;
 }
 
 /* processos */
@@ -296,7 +360,7 @@ void roundRobin(linha **dados) {
 
 		if (!filaVazia(procs)){
 			for (j = procs->tam; j > 0; j--) {
-				processoTopo = remove(procs);
+				processoTopo = removeFila(procs);
 
 				if ((posicao = pthread_create(&threads[processoTopo->i], NULL, criaThreadQuantum, (void *) processoTopo)))
 					printf("Erro ao criar thread %d\n", posicao);
@@ -337,7 +401,7 @@ void escalonamentoComPrioridade(linha **dados) {
 
 		if (!filaVazia(procs)){
 			for (j = procs->tam; j > 0; j--) {
-				processoTopo = remove(procs);
+				processoTopo = removeFila(procs);
 				processoTopo->quantum = escolheQuantum(processoTopo);
 
 				if ((posicao = pthread_create(&threads[processoTopo->i], NULL, criaThreadQuantum, (void *) processoTopo)))
@@ -364,7 +428,7 @@ int main(int argc, char **argv){
 	
 	gettimeofday(&tv, NULL);
 	iniciandoTempo = tv;
-	dados = readFile(argv[2], &CONTADOR_LINHA);
+	dados = leArquivo(argv[2], &CONTADOR_LINHA);
 	f = fopen(argv[3], "w");
 	escalonador = atoi(argv[1]);
 

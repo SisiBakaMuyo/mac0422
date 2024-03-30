@@ -49,9 +49,14 @@ fila *criaFila(int MAX);
 
 void insere(fila *f, processo *x);
 
-processo *remove(fila *f);
+processo *removeFila(fila *f);
 
 void destroiFila(fila *f);
+
+/* leitura */
+linha *criaLinha(int n);
+
+linha **leArquivo(char *nomeArquivo, int *contadorLinha);
 
 /* processos */
 float getTempoExecucao();

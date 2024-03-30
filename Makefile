@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-ansi -Wall -pedantic -O2
+CFLAGS=-o
 EP1SHELL=newsh.c 
 EP1SIMPROCESS = ep1.c 
 
