@@ -1,7 +1,4 @@
-/* Isis Ardisson Logullo 7577410
-* 
-* gcc newsh.c -o shell -lreadline -ltermcap
-*/
+/* Isis Ardisson Logullo 7577410 */
 
 #include "newsh.h"
 #include <stdio.h> 

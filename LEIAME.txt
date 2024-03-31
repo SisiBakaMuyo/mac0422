@@ -4,7 +4,7 @@ Executáveis do EP1:
 
 Com o comando "make" os dois executaveis são gerados.
 É possível gerar os executaveis separadamente com os comandos:
-"make shell" e "make simprocess".
+"make shell" e "make ep1".
 
 Shell:
 
@@ -15,7 +15,7 @@ Permite a invocação de executáveis.
 
 Simulador de Processos:
 
-Execute o simulador com o comando "./simprocess arg1 arg2 arg3"
+Execute o simulador com o comando "./ep1 arg1 arg2 arg3"
 arg1 - 1 = Sortest Job First, 2 = Round Robin, 3 = Escalonamento com prioridade
 arg2 - Arquivo de trace
 arg3 - Arquivo de output
