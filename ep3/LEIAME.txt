@@ -1,6 +1,6 @@
 Instruções de compilação e uso
 
-Para compilar, rode no terminal:
+Para compilar, digite:
 	make 
 
 Para rodar, digite:
@@ -40,9 +40,9 @@ Intervalo Confiança: 841,150 ~ 822,289 ms
 
 7. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e sem arquivo
 regular em nenhum dos subdiretórios
-Média: 
-Desvio Padrao: 
-Intervalo Confiança:
+Média: 7,818 ms 
+Desvio Padrao: 0,34
+Intervalo Confiança: 7,940 ~ 7,696 ms 
 
 8. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e com centenas
 de arquivos regulares em todos os subdiretórios
