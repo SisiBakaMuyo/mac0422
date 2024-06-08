@@ -1,0 +1,73 @@
+Instruções de compilação e uso
+
+Para compilar, rode no terminal:
+	make 
+
+Para rodar, digite:
+        ./ep3
+
+Experimentos:
+
+1. Cópia de um arquivo de 1MB no ‘/’
+Média: 186.744 ms
+Desvio Padrao: 5,682
+Intervalo Confiança: 188,776 ~ 184,712 ms
+
+2. Cópia de um arquivo de 10MB no ‘/’
+Média: 2471,706 ms
+Desvio Padrao: 624,768
+Intervalo Confiança: 2695,163 ~ 2248,249 ms
+
+3. Cópia de um arquivo de 30MB no ‘/’
+Média: 9826,374 ms
+Desvio Padrao: 2142,452
+Intervalo Confiança: 10592,652 ~ 9060,095 ms
+
+4. Remoção de um arquivo de 1MB no ‘/’
+Média: 30,023 ms
+Desvio Padrao: 0,976
+Intervalo Confiança: 30,372 ~ 29,674 ms
+
+5. Remoção de um arquivo de 10MB no ‘/’
+Média: 298,477 ms
+Desvio Padrao: 24,936
+Intervalo Confiança: 307,396 ~ 289,558 ms 
+
+6. Remoção de um arquivo de 30MB no ‘/’
+Média: 831,720 ms
+Desvio Padrao: 26,367
+Intervalo Confiança: 841,150 ~ 822,289 ms
+
+7. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e sem arquivo
+regular em nenhum dos subdiretórios
+Média: 
+Desvio Padrao: 
+Intervalo Confiança:
+
+8. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e com centenas
+de arquivos regulares em todos os subdiretórios
+Média: 
+Desvio Padrao: 
+Intervalo Confiança:
+
+Com o sistema de arquivos em 3 estados diferentes:
+IC = media +e- 1.96*(desvio/5,48) 
+
+1. Sistema de arquivos vazio
+Média: 
+Desvio Padrao: 
+Intervalo Confiança:
+
+2. Sistema de arquivos com 10MB ocupados
+Média: 
+Desvio Padrao: 
+Intervalo Confiança:
+
+3. Sistema de arquivos com 50MB ocupados
+Média: 
+Desvio Padrao: 
+Intervalo Confiança:
+
+Link para acesso ao video:
+
+

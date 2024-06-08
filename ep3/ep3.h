@@ -12,8 +12,8 @@
 
 #define WASTESEEK MAPSIZE
 #define LIVRESSEEK (MAPSIZE+4)
-#define QTDDSEEK (MAPSIZE+8)
-#define QTDFSEEK (MAPSIZE+12)
+#define QTDDIRSEEK (MAPSIZE+8)
+#define QTDARQSEEK (MAPSIZE+12)
 #define ROOTSEEK (MAPSIZE+16)
 
 #define MAXCHAR 256
@@ -36,6 +36,7 @@ struct arquivo
   int 		diretorio;
 };
 
+float timedifference_msec(struct timeval t0, struct timeval t1);
 
 void addD();
 
