@@ -17,7 +17,7 @@ unsigned char bitmap[MAPSIZE];
 FILE *unidade;
 
 
-float timedifference_msec(struct timeval t0, struct timeval t1){
+float timeDifferenceMsec(struct timeval t0, struct timeval t1){
     return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 }
 
@@ -429,7 +429,7 @@ void tocaArquivo(char *caminho){
 
       if (strcmp(arq.nome, str) == 0){
 
-        arq.instanteAcessado = dir.instanteAcessado;
+        arq.instanteAcessado = time(NULL);
 
         fseek(unidade, bloco*BLOCKSIZE + j*sizeof(Arquivo), SEEK_SET);
         fwrite(&arq, sizeof(Arquivo), 1, unidade);
@@ -451,8 +451,8 @@ void tocaArquivo(char *caminho){
 
   arq.tamBytes = 0;
   arq.instanteCriado = dir.instanteAcessado;
-  arq.instanteModificado = arq.instanteCriado;
-  arq.instanteAcessado = arq.instanteCriado;
+  arq.instanteModificado = time(NULL);
+  arq.instanteAcessado = time(NULL);
   arq.diretorio = -1;
 
   if ((j == ARQPERBLOCK) && (endvago != -1)){ 
@@ -530,7 +530,7 @@ void listaArquivo(char *caminho){
   if(dir.diretorio == 0) {
     (printf("Diretorio vazio.\n"));
   } else {
-    printf ("eh diretorio  |    nome    | tamanho em bytes | ultima modificacao\n");
+    printf (" d |    nome    | tamanho em bytes |    ultima modificacao    |     ultimo acesso  \n");
   }
 
   j = 0;
@@ -550,15 +550,16 @@ void listaArquivo(char *caminho){
     if(strlen(file.nome) != 0){
 
       if(file.diretorio >=0)  {
-        printf("      *       |");
+        printf(" * |");
       } else {
-        printf("              |");
+        printf("   |");
       }
 
       printf("%12s|", file.nome);
       printf("%18d|", file.tamBytes);
       printf(" ");
       printf("%s", ctime(&file.instanteModificado));
+      printf("%s", ctime(&file.instanteAcessado));
 
       i++;
     }
@@ -566,6 +567,7 @@ void listaArquivo(char *caminho){
     j++;
   }
 }
+
 
 void apagaArquivo(char *caminho){
   Arquivo arq, dir;
@@ -760,7 +762,7 @@ void criaDir(char *caminho){
   fwrite(&livres, sizeof(livres), 1, unidade);
 }
 
-void removeDiretorioirRec(int end){
+void removeDirRec(int end){
   Arquivo arq, dir;
   int arquivos, bloco, i, j, aux;
 
@@ -800,7 +802,7 @@ void removeDiretorioirRec(int end){
           fseek(unidade, bloco*BLOCKSIZE + j*sizeof(Arquivo), SEEK_SET);
           fwrite(&arq, sizeof(Arquivo), 1, unidade);
 
-          removeDiretorioirRec(bloco*BLOCKSIZE + j*sizeof(Arquivo));
+          removeDirRec(bloco*BLOCKSIZE + j*sizeof(Arquivo));
 
         } else { 
 
@@ -816,7 +818,7 @@ void removeDiretorioirRec(int end){
           fseek(unidade, bloco*BLOCKSIZE + j*sizeof(Arquivo), SEEK_SET);
           fwrite(&arq, sizeof(Arquivo), 1, unidade);
 
-          removeDiretorioirRec(bloco*BLOCKSIZE + j*sizeof(Arquivo));
+          removeDirRec(bloco*BLOCKSIZE + j*sizeof(Arquivo));
 
         }
 
@@ -847,7 +849,7 @@ void removeDiretorioirRec(int end){
   return;
 }
 
-void removeDiretorioir(char *caminho){
+void removeDir(char *caminho){
   Arquivo arq, dir;
   char **paradas = NULL;
   char str[MAXCHAR];
@@ -904,7 +906,7 @@ void removeDiretorioir(char *caminho){
         fwrite(&desperdicado, sizeof(desperdicado), 1, unidade);
         fwrite(&livres, sizeof(livres), 1, unidade);
 
-        removeDiretorioirRec(bloco*BLOCKSIZE + j*sizeof(Arquivo));
+        removeDirRec(bloco*BLOCKSIZE + j*sizeof(Arquivo));
 
         return;
       }
@@ -916,6 +918,31 @@ void removeDiretorioir(char *caminho){
   }
 }
 
+char* geradir ( char* dir, int num){
+    while (num != 0){
+      dir = strcat(dir , "/a");
+      num --;
+    }
+    return dir;
+};
+
+void rec30Dir (char *caminho){
+  for (int i = 0; i < 29; i++){
+    criaDir(caminho);
+    caminho = geradir(caminho, i + 1);
+  }
+}
+
+void rec30Dir100Arq (char *caminho, char *origem){
+  for (int i = 0; i < 29; i++){
+    criaDir(caminho);
+    for (int j = 0; j < 100; j++){
+      copiaArquivo(origem, caminho);
+    }
+    caminho = geradir (caminho, i + 1);
+    printf("%s \n", caminho);
+  }
+}
 
 int main(){
   char*  input, shell_prompt[MAXCHAR];
@@ -1050,7 +1077,7 @@ int main(){
         gettimeofday(&t0, 0);
         copiaArquivo(argv[1], argv[2]);
         gettimeofday(&t1, 0);
-        elapsed = timedifference_msec(t0, t1);
+        elapsed = timeDifferenceMsec(t0, t1);
         printf("Copia executou em %f millisegundos.\n", elapsed);
       }
 
@@ -1066,8 +1093,8 @@ int main(){
         gettimeofday(&t0, 0);
         criaDir(argv[1]);
         gettimeofday(&t1, 0);
-        elapsed = timedifference_msec(t0, t1);
-        printf("Copia executou em %f millisegundos.\n", elapsed);
+        elapsed = timeDifferenceMsec(t0, t1);
+        printf("CriaDir executou em %f millisegundos.\n", elapsed);
       }
 
     //apagadir diretorio
@@ -1080,10 +1107,10 @@ int main(){
         struct timeval t1;
         float elapsed;
         gettimeofday(&t0, 0);
-        removeDiretorioir(argv[1]);
+        removeDir(argv[1]);
         gettimeofday(&t1, 0);
-        elapsed = timedifference_msec(t0, t1);
-        printf("Copia executou em %f millisegundos.\n", elapsed);
+        elapsed = timeDifferenceMsec(t0, t1);
+        printf("ApagaDir executou em %f millisegundos.\n", elapsed);
       }
 
     //mostra arquivo
@@ -1122,8 +1149,8 @@ int main(){
         gettimeofday(&t0, 0);
         apagaArquivo(argv[1]);
         gettimeofday(&t1, 0);
-        elapsed = timedifference_msec(t0, t1);
-        printf("Copia executou em %f millisegundos.\n", elapsed);
+        elapsed = timeDifferenceMsec(t0, t1);
+        printf("Apaga executou em %f millisegundos.\n", elapsed);
       }
 
     //lista diretorio
@@ -1139,17 +1166,21 @@ int main(){
 
     //atualizadb
   	} else if (strcmp(argv[0], "atualizadb") == 0) {
-
+        
       if(montado == FALSE) {
         printf("Eh necessario montar uma unidade antes.\n");
-      } else {}
+      } else {
+        printf("Nao implementado.\n");
+      }
 
     //busca string
     } else if (strcmp(argv[0], "busca") == 0) {
-
+        
       if(montado == FALSE) {
         printf("Eh necessario montar uma unidade antes.\n");
-      } else {}
+      } else {
+        printf("Nao implementado.\n");
+      }
 
     //status  
   	} else if (strcmp(argv[0], "status") == 0) {
@@ -1174,11 +1205,29 @@ int main(){
       }
 
     //sai
-  	}
-    else if (strcmp(argv[0], "sai") == 0) {
+  	} else if (strcmp(argv[0], "sai") == 0) {
   		printf("Exit.\n");
   		break;
-  	} else {
+
+    //experimento 7
+  	} else if (strcmp(argv[0], "rec30dir") == 0){
+
+      if(montado == FALSE) {
+        printf("Eh necessario montar uma unidade antes.\n");
+      } else {
+        rec30Dir(argv[1]);
+      }
+
+    //experimento 8
+    }else if (strcmp(argv[0], "rec30dir100arq") == 0){
+
+      if(montado == FALSE) {
+        printf("Eh necessario montar uma unidade antes.\n");
+      } else {
+        rec30Dir100Arq(argv[1], argv[2]);
+      }
+
+    }else {
         printf("Lista de comandos:\n");
         printf("monta <arquivo>    			-- monta o sistema de arquivos contido em <arquivo>\n");
         printf("copia <origem> <destino>   	-- cria uma copia do arquivo <origem> em <destino>\n");
@@ -1193,6 +1242,8 @@ int main(){
         printf("status						-- imprime informacoes do sistema de arquivos");
         printf("desmonta					-- desmonta o sistema de arquivos");
         printf("sai               			-- encerra o programa\n");
+        printf("rec30dir <diretorio>        -- cria 30 diretórios em arvore, sendo a raiz o <diretorio>\n");
+        printf("rec30dir100arq <diretorio> <origem>   			-- cria 30 diretórios em arvore, sendo a raiz o <diretorio>, em cada diretorio tera 100 arquvivos copiados de <origem>\n");
 		}
 
     if(argv != NULL){

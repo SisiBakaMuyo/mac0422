@@ -8,65 +8,134 @@ Para rodar, digite:
 
 Experimentos:
 
-1. Cópia de um arquivo de 1MB no ‘/’
-Média: 186.744 ms
-Desvio Padrao: 5,682
-Intervalo Confiança: 188,776 ~ 184,712 ms
+1. Sistema de arquivos vazio:
 
-2. Cópia de um arquivo de 10MB no ‘/’
-Média: 2471,706 ms
-Desvio Padrao: 624,768
-Intervalo Confiança: 2695,163 ~ 2248,249 ms
+        1. Cópia de um arquivo de 1MB no ‘/’
+        Média: 186.744 ms
+        Desvio Padrao: 5,682
+        Intervalo Confiança: 188,776 ~ 184,712 ms
 
-3. Cópia de um arquivo de 30MB no ‘/’
-Média: 9826,374 ms
-Desvio Padrao: 2142,452
-Intervalo Confiança: 10592,652 ~ 9060,095 ms
+        2. Cópia de um arquivo de 10MB no ‘/’
+        Média: 2471,706 ms
+        Desvio Padrao: 624,768
+        Intervalo Confiança: 2695,163 ~ 2248,249 ms
 
-4. Remoção de um arquivo de 1MB no ‘/’
-Média: 30,023 ms
-Desvio Padrao: 0,976
-Intervalo Confiança: 30,372 ~ 29,674 ms
+        3. Cópia de um arquivo de 30MB no ‘/’
+        Média: 9826,374 ms
+        Desvio Padrao: 2142,452
+        Intervalo Confiança: 10592,652 ~ 9060,095 ms
 
-5. Remoção de um arquivo de 10MB no ‘/’
-Média: 298,477 ms
-Desvio Padrao: 24,936
-Intervalo Confiança: 307,396 ~ 289,558 ms 
+        4. Remoção de um arquivo de 1MB no ‘/’
+        Média: 30,023 ms
+        Desvio Padrao: 0,976
+        Intervalo Confiança: 30,372 ~ 29,674 ms
 
-6. Remoção de um arquivo de 30MB no ‘/’
-Média: 831,720 ms
-Desvio Padrao: 26,367
-Intervalo Confiança: 841,150 ~ 822,289 ms
+        5. Remoção de um arquivo de 10MB no ‘/’
+        Média: 298,477 ms
+        Desvio Padrao: 24,936
+        Intervalo Confiança: 307,396 ~ 289,558 ms 
 
-7. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e sem arquivo
-regular em nenhum dos subdiretórios
-Média: 7,818 ms 
-Desvio Padrao: 0,34
-Intervalo Confiança: 7,940 ~ 7,696 ms 
+        6. Remoção de um arquivo de 30MB no ‘/’
+        Média: 831,720 ms
+        Desvio Padrao: 26,367
+        Intervalo Confiança: 841,150 ~ 822,289 ms
 
-8. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e com centenas
-de arquivos regulares em todos os subdiretórios
-Média: 
-Desvio Padrao: 
-Intervalo Confiança:
+        7. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e sem arquivo
+        regular em nenhum dos subdiretórios
+        Média: 7,818 ms 
+        Desvio Padrao: 0,34
+        Intervalo Confiança: 7,940 ~ 7,696 ms 
 
-Com o sistema de arquivos em 3 estados diferentes:
-IC = media +e- 1.96*(desvio/5,48) 
+        8. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e com centenas
+        de arquivos regulares em todos os subdiretórios
+        Erro de falta de espaço no bloco
 
-1. Sistema de arquivos vazio
-Média: 
-Desvio Padrao: 
-Intervalo Confiança:
 
 2. Sistema de arquivos com 10MB ocupados
-Média: 
-Desvio Padrao: 
-Intervalo Confiança:
+
+        1. Cópia de um arquivo de 1MB no ‘/’
+        Média: 199,132 ms
+        Desvio Padrao: 70,348
+        Intervalo Confiança: 224,292 ~ 173,971 ms
+
+        2. Cópia de um arquivo de 10MB no ‘/’
+        Média: 3348,050 ms
+        Desvio Padrao: 34,099
+        Intervalo Confiança: 3360,245 ~ 3335,854 ms
+
+        3. Cópia de um arquivo de 30MB no ‘/’
+        Média: 9673,400 ms
+        Desvio Padrao: 112,415
+        Intervalo Confiança: 9713,606 ~ 9633,193 ms
+
+        4. Remoção de um arquivo de 1MB no ‘/’
+        Média: 26,757 ms
+        Desvio Padrao: 1,297
+        Intervalo Confiança: 27,220 ~ 26,293 ms
+
+        5. Remoção de um arquivo de 10MB no ‘/’
+        Média: 260,308 ms
+        Desvio Padrao: 5,963
+        Intervalo Confiança: 28,889 ~ 24,624 ms
+
+        6. Remoção de um arquivo de 30MB no ‘/’
+        Média: 726,337 ms
+        Desvio Padrao: 10,512
+        Intervalo Confiança: 730,096 ~ 722,577 ms
+
+        7. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e sem arquivo
+        regular em nenhum dos subdiretórios
+        Média: 12,964 ms
+        Desvio Padrao: 2,29
+        Intervalo Confiança: 13,783 ~ 12,144 ms
+
+        8. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e com centenas
+        de arquivos regulares em todos os subdiretórios
+        Erro de falta de espaço no bloco
+
 
 3. Sistema de arquivos com 50MB ocupados
-Média: 
-Desvio Padrao: 
-Intervalo Confiança:
+
+        1. Cópia de um arquivo de 1MB no ‘/’
+        Média: 246,107 ms
+        Desvio Padrao: 90,787 
+        Intervalo Confiança: 278,578 ~ 213,635 ms
+
+        2. Cópia de um arquivo de 10MB no ‘/’
+        Média: 2306,828 ms
+        Desvio Padrao: 1017,029
+        Intervalo Confiança: 2669,861 ~ 1942,352 ms
+
+        3. Cópia de um arquivo de 30MB no ‘/’
+        Média: 7230,413 ms
+        Desvio Padrao: 2672,940
+        Intervalo Confiança: 8186,428 ms
+
+        4. Remoção de um arquivo de 1MB no ‘/’
+        Média: 27,185 ms 
+        Desvio Padrao: 1,415
+        Intervalo Confiança: 27,691 ~ 26,678 ms
+
+        5. Remoção de um arquivo de 10MB no ‘/’
+        Média: 260,410 ms
+        Desvio Padrao: 6,476 
+        Intervalo Confiança: 262,726 ~ 258,093 ms 
+
+        6. Remoção de um arquivo de 30MB no ‘/’
+        Média: 710,899 ms
+        Desvio Padrao: 7,606
+        Intervalo Confiança: 713,619 ~ 708,178 ms
+
+        7. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e sem arquivo
+        regular em nenhum dos subdiretórios
+        Média: 11,028 ms
+        Desvio Padrao: 2,429
+        Intervalo Confiança: 11,896 ~ 10,159 ms 
+
+        8. Remoção completa de um diretório “pai” com 30 nı́veis de hierarquia abaixo dele e com centenas
+        de arquivos regulares em todos os subdiretórios
+        Erro de falta de espaço no bloco
+
 
 Link para acesso ao video:
 

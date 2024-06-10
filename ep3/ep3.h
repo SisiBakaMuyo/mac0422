@@ -36,7 +36,7 @@ struct arquivo
   int 		diretorio;
 };
 
-float timedifference_msec(struct timeval t0, struct timeval t1);
+float timeDifferenceMsec(struct timeval t0, struct timeval t1);
 
 void addD();
 
@@ -83,6 +83,12 @@ void criaDir(char *caminho);
 void removeDirRec(int end);
 
 void removeDir(char *caminho);
+
+char* geradir ( char* dir, int num);
+
+void rec30Dir (char *caminho);
+
+void rec30Dir100Arq (char *caminho, char *origem);
 
 
 
