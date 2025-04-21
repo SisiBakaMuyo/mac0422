@@ -1,0 +1,227 @@
+Analise do ep1: 
+com resultados esperados (em que o escalonamento com prioridade tenha resultado melhor que o SRTN, que por sua vez seja melhor que o FCFS) e com resultados inesperados (em que o escalonamento FCFS tenha resultado
+melhor ou igual que o SRTN, que por sua vez seja melhor ou igual que o escalonamento com prioridade).
+
+deadlines e preempções
+
+
+input10 -> entrada-inesperado.txt
+
+trace0  -> entrada-esperado.txt
+
+1)First-Come First-Served 
+
+trace0:
+
+deadlines: 0,2    -> 0,17 media
+		   0,2
+		   0,2
+		   0,2
+		   0,2
+		   0,2
+		   0,2
+		   0,2
+		   0,1
+		   0,0
+
+preempcoes: 9     -> 9 media
+			9
+			9
+			9
+			9
+			9
+			9
+			9
+			9
+			9
+
+
+---------------
+
+input10:
+
+deadlines: 0,4     -> 0,38 media
+		   0,4
+		   0,4
+		   0,4
+		   0,4
+		   0,2	
+		   0,4
+		   0,4
+		   0,4
+		   0,4
+
+preempcoes: 9     -> 9 media
+			9
+			9
+			9
+			9
+			9
+			9
+			9
+			9
+			9
+
+2)Shortest Remaining Time Next
+
+trace0:
+
+deadlines: 0,2     -> 0,39 media
+		   0,3
+		   0,3
+		   0,3
+		   0,4
+		   0,4
+		   0,6
+		   0,6
+		   0,6
+		   0,2
+		   
+
+preempcoes: 12    -> 12 media
+			12
+			12
+			12
+			12
+			12
+			12
+			12
+			12
+			12
+
+----------------
+
+input10:
+
+deadlines: 0,8     -> 0,36 media
+		   0,1
+		   0,5
+		   0,5
+		   0,5
+		   0,7
+		   0,3
+		   0,1
+		   0,1
+		   0,0
+
+
+preempcoes: 10     -> 10
+			10
+			10
+			10
+			10
+			10
+			10
+			10
+			10
+			10
+
+
+3)Escalonamento com prioridade
+
+trace0:
+
+deadlines: 0,1    -> 0,12 media   ->  vai ser pra dar certo: 0,64 media
+		   0,1
+		   0,1
+		   0,1
+		   0,2
+		   0,1
+		   0,1
+		   0,1
+		   0,1
+		   0,2
+		   
+		   
+
+preempcoes: 147   -> 147 media
+			147
+			147
+			147
+			147
+			147
+			147
+			147
+			147
+			147
+
+
+
+----------------
+
+input10: -> inexperado
+
+deadlines: 0,0    -> 0,01 media
+		   0,0
+		   0,0
+		   0,0
+		   0,0
+		   0,0
+		   0,0
+		   0,1
+		   0,0
+		   0,0
+
+
+preempcoes: 39    -> 39 media
+			39
+			39
+			39
+			39
+			39
+			39
+			39
+			39
+			39
+
+
+maquina vm:
+
+Arquitetura:                  x86_64
+  Modo(s) operacional da CPU: 32-bit, 64-bit
+  Address sizes:              39 bits physical, 48 bits virtual
+  Ordem dos bytes:            Little Endian
+CPU(s):                       14
+  Lista de CPU(s) on-line:    0-13
+ID de fornecedor:             GenuineIntel
+  Nome do modelo:             12th Gen Intel(R) Core(TM) i7-12700H
+    Família da CPU:           6
+    Modelo:                   154
+    Thread(s) per núcleo:     1
+    Núcleo(s) por soquete:    14
+    Soquete(s):               1
+    Step:                     3
+    BogoMIPS:                 5376,00
+    Opções:                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflu
+                              sh mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopo
+                              logy nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 cx16 sse4_1 sse4_2 
+                              movbe popcnt aes rdrand hypervisor lahf_lm abm 3dnowprefetch ibrs_enhanced fs
+                              gsbase bmi1 bmi2 invpcid rdseed adx clflushopt sha_ni arat md_clear flush_l1d
+                               arch_capabilities
+Virtualization features:      
+  Fabricante do hipervisor:   KVM
+  Tipo de virtualização:      completo
+Caches (sum of all):          
+  L1d:                        672 KiB (14 instances)
+  L1i:                        448 KiB (14 instances)
+  L2:                         17,5 MiB (14 instances)
+  L3:                         336 MiB (14 instances)
+NUMA:                         
+  Nó(s) de NUMA:              1
+  CPU(s) de nó0 NUMA:         0-13
+Vulnerabilities:              
+  Gather data sampling:       Not affected
+  Itlb multihit:              Not affected
+  L1tf:                       Not affected
+  Mds:                        Not affected
+  Meltdown:                   Not affected
+  Mmio stale data:            Not affected
+  Reg file data sampling:     Mitigation; Clear Register File
+  Retbleed:                   Mitigation; Enhanced IBRS
+  Spec rstack overflow:       Not affected
+  Spec store bypass:          Vulnerable
+  Spectre v1:                 Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+  Spectre v2:                 Mitigation; Enhanced / Automatic IBRS; RSB filling; PBRSB-eIBRS SW sequence; 
+                              BHI SW loop, KVM SW loop
+  Srbds:                      Not affected
+  Tsx async abort:            Not affected

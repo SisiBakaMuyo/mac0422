@@ -22,6 +22,47 @@ pthread_mutex_t *empty;
 pthread_mutex_t *full;
 Processo *processos;
 
+//leitura
+void leArquivo(FILE * arquivo, int max) {
+  int i;
+
+  while (!feof(arquivo)) {
+    if (fscanf(arquivo, "%s %d %d %d", processos[tamanho].nome, &(processos[tamanho].t0), &(processos[tamanho].dt), &(processos[tamanho].deadline)) != 4) {
+      continue;
+    }
+    processos[tamanho].dtt = 0;
+    processos[tamanho].i = tamanho;
+
+    tamanho++;
+    if (tamanho == max) {
+      pthread_mutex_t *aux_sem, *aux_empty, *aux_full;
+      Processo *aux_processos;
+
+      max *= 2;
+
+      aux_processos = malloc(max * sizeof(Processo));
+      aux_sem = malloc(max * sizeof(pthread_mutex_t));
+      aux_empty = malloc(max * sizeof(pthread_mutex_t));
+      aux_full = malloc(max * sizeof(pthread_mutex_t));
+
+      for (i = 0; i < tamanho; i++) {
+        aux_processos[i] = processos[i];
+      }
+
+      free(processos);
+      free(sem);
+      free(empty);
+      free(full);
+
+      processos = aux_processos;
+      sem = aux_sem;
+      empty = aux_empty;
+      full = aux_full;
+    }
+  }
+  
+  fclose(arquivo);
+}
 
 //fila
 void criaFila(Fila *fila) {
@@ -82,7 +123,7 @@ void insereHeap(Processo *heap, int *tamanho, Processo valor) {
   }
 }
 
-void transformacao(Processo *heap, int *tamanho, int i) {
+void transformaHeap(Processo *heap, int *tamanho, int i) {
   int menor = i;
   
   if (2 * i + 1 < *tamanho && heap[2 * i + 1].dt < heap[i].dt)
@@ -96,11 +137,11 @@ void transformacao(Processo *heap, int *tamanho, int i) {
     heap[menor] = heap[i];
     heap[i] = x;
 
-    transformacao(heap, tamanho, menor);
+    transformaHeap(heap, tamanho, menor);
   }
 }
 
-void removeMinimoHeap(Processo *heap, int *tamanho) {
+void removeHeap(Processo *heap, int *tamanho) {
   if (*tamanho == 0) {
     printf("Vazio\n");
     return;
@@ -108,7 +149,7 @@ void removeMinimoHeap(Processo *heap, int *tamanho) {
 
   *tamanho = *tamanho - 1;
   heap[0] = heap[*tamanho];
-  transformacao(heap, tamanho, 0);
+  transformaHeap(heap, tamanho, 0);
 }
 
 //thread
@@ -285,7 +326,7 @@ void srtn() {
           if (tamHeap > 0) {
 
             atual = heap[0].i;
-            removeMinimoHeap(heap, &tamHeap);
+            removeHeap(heap, &tamHeap);
             mudancaContexto += 1;
             rodando = 1;
           }
@@ -294,7 +335,7 @@ void srtn() {
 
           int anterior = atual;
           atual = heap[0].i;
-          removeMinimoHeap(heap, &tamHeap);
+          removeHeap(heap, &tamHeap);
           insereHeap(heap, &tamHeap, processos[anterior]);
           mudancaContexto += 1;
         }
@@ -305,7 +346,7 @@ void srtn() {
         if (tamHeap > 0) {
 
           atual = heap[0].i;
-          removeMinimoHeap(heap, &tamHeap);
+          removeHeap(heap, &tamHeap);
           pthread_mutex_unlock(&empty[atual]);
           rodando = 1;
         }
@@ -395,11 +436,11 @@ void prioridade() {
       if (tempoExecucao + tt >= 1000000.0) {
         t++;
         tt += tempoExecucao - 1000000.0;
-        tt += prioridade[atual] * 1000;
+        // tt += prioridade[atual] * 10;
       }
       else {
         tt += tempoExecucao;
-        tt += prioridade[atual] * 1000;
+        // tt += prioridade[atual] * 10;
       }
     }
   }
@@ -427,45 +468,10 @@ int main(int argc, char **argv) {
   sem = malloc(max * sizeof(Processo));
   empty = malloc(max * sizeof(Processo));
   full = malloc(max * sizeof(Processo));
-
-  while (!feof(arquivo)) {
-    if (fscanf(arquivo, "%s %d %d %d", processos[tamanho].nome, &(processos[tamanho].t0), &(processos[tamanho].dt), &(processos[tamanho].deadline)) != 4) {
-      continue;
-    }
-    processos[tamanho].dtt = 0;
-    processos[tamanho].i = tamanho;
-
-    tamanho++;
-    if (tamanho == max) {
-      pthread_mutex_t *aux_sem, *aux_empty, *aux_full;
-      Processo *aux_processos;
-
-      max *= 2;
-
-      aux_processos = malloc(max * sizeof(Processo));
-      aux_sem = malloc(max * sizeof(pthread_mutex_t));
-      aux_empty = malloc(max * sizeof(pthread_mutex_t));
-      aux_full = malloc(max * sizeof(pthread_mutex_t));
-
-      for (i = 0; i < tamanho; i++) {
-        aux_processos[i] = processos[i];
-      }
-
-      free(processos);
-      free(sem);
-      free(empty);
-      free(full);
-
-      processos = aux_processos;
-      sem = aux_sem;
-      empty = aux_empty;
-      full = aux_full;
-    }
-  }
-
-  fclose(arquivo);
-  mudancaContexto = 0;
  
+  leArquivo(arquivo, max);
+  mudancaContexto = 0;
+
   switch(escalonador) {
     case 1:
       fcfs();

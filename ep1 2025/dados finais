@@ -1,0 +1,41 @@
+Maquina A:
+Nome do modelo:             12th Gen Intel(R) Core(TM) i7-12700H
+    Thread(s) per núcleo:     1
+    Núcleo(s) por soquete:    14
+
+
+entrada-esperado.txt:
+
+1)First-Come First-Served 
+
+deadlines: 0,17 media   
+preempcoes: 9 media
+			
+2)Shortest Remaining Time Next
+
+deadlines: 0,39 media
+preempcoes: 12 media
+
+3)Escalonamento com prioridade
+
+deadlines: 0,64 media
+preempcoes: 147 media
+
+
+entrada-inesperado.txt:
+
+1)First-Come First-Served 
+
+deadlines: 0,38 media   
+preempcoes: 9 media
+			
+2)Shortest Remaining Time Next
+
+deadlines: 0,36 media
+preempcoes: 10 media
+
+3)Escalonamento com prioridade
+
+deadlines: 0,01 media
+preempcoes: 39 media
+			

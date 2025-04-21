@@ -25,6 +25,9 @@ typedef struct fila {
 } Fila;
 
 
+//leitura
+void leArquivo(FILE * arquivo, int max);
+
 //fila
 void criaFila(Fila *fila);
 
@@ -37,9 +40,9 @@ Processo removeFila(Fila *fila);
 //heap
 void insereHeap(Processo *heap, int *tamanho, Processo valor);
 
-void transformacao(Processo *heap, int *tamanho, int i);
+void transformaHeap(Processo *heap, int *tamanho, int i);
 
-void removeMinimoHeap(Processo *heap, int *tamanho);
+void removeHeap(Processo *heap, int *tamanho);
 
 //thread
 void * thread(void * atual);
