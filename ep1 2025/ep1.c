@@ -1,28 +1,29 @@
+/* Isis Ardisson Logullo 7577410 */
+
 #define _GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <sched.h>
-#include "ep1.h" 
+#include "ep1.h"
+
 
 int tamanho;
 int escalonador;
 int mudancaContexto;
-int cumpriu;
 long int tempoExecucao;
+int cumpriu;
 pthread_mutex_t *sem;
 pthread_mutex_t *empty;
 pthread_mutex_t *full;
 Processo *processos;
 
 
-/* fila */
+//fila
 void criaFila(Fila *fila) {
   fila->ini = fila->fim = NULL;
 }
@@ -30,15 +31,15 @@ void criaFila(Fila *fila) {
 void insereFila(Fila *fila, Processo data) {
   No *novo;
   novo = malloc(sizeof(No));
-  novo->pre = NULL;
+  novo->anterior = NULL;
   novo->data = data;
   
   if (fila->fim != NULL) {
-    novo->next = fila->fim;
-    fila->fim->pre = novo;
+    novo->proximo = fila->fim;
+    fila->fim->anterior = novo;
   }
   else {
-    novo->next = NULL;
+    novo->proximo = NULL;
     fila->ini = novo;
   }
 
@@ -53,9 +54,9 @@ Processo removeFila(Fila *fila) {
   Processo data = fila->ini->data;
 
   if (fila->fim != fila->ini) {
-    fila->ini = fila->ini->pre;
-    free(fila->ini->next);
-    fila->ini->next = NULL;
+    fila->ini = fila->ini->anterior;
+    free(fila->ini->proximo);
+    fila->ini->proximo = NULL;
   }
   else {
     free(fila->fim);
@@ -63,13 +64,6 @@ Processo removeFila(Fila *fila) {
   }
 
   return data;
-}
-
-//quantum
-int comparacaoMaiorQuantum(suseconds_t inicio2, suseconds_t fim2, double inicio, double fim) {
-  if (inicio < fim) return 1;
-  
-  return (inicio == fim && inicio2 < fim2);
 }
 
 //heap
@@ -106,7 +100,7 @@ void transformacao(Processo *heap, int *tamanho, int i) {
   }
 }
 
-void removeMenor(Processo *heap, int *tamanho) {
+void removeMinimoHeap(Processo *heap, int *tamanho) {
   if (*tamanho == 0) {
     printf("Vazio\n");
     return;
@@ -123,16 +117,16 @@ void * thread(void * atual) {
   int i = 0;
   
   if (escalonador != 1) {
-    while (processos[at].dt > 0 || processos[at].t > 0) {
+    while (processos[at].dt > 0 || processos[at].dtt > 0) {
       pthread_mutex_lock(&empty[at]);
 
       usleep(tempoExecucao);
-      if (tempoExecucao > processos[at].t) {
+      if (tempoExecucao > processos[at].dtt) {
         processos[at].dt--;
-        processos[at].t += 1000000.0 - tempoExecucao;
+        processos[at].dtt += 1000000 - tempoExecucao;
       }
       else {
-        processos[at].t -= tempoExecucao;
+        processos[at].dtt -= tempoExecucao;
       }
 
       i = 2 * 2;
@@ -142,12 +136,14 @@ void * thread(void * atual) {
   }
   else {
     pthread_mutex_lock(&sem[at]);
+
     while (processos[at].dt > 0) {
       sleep(1);
       processos[at].dt--;
       i = 2 * 2;
     }
   }
+
   return NULL;
 }
 
@@ -200,9 +196,17 @@ void freeMutex() {
   }
 }
 
-//escalonadores
+//quantum
+int comparaQuantum(suseconds_t inicio2, suseconds_t fim2, double inicio, double fim) {
+  if (inicio < fim) return 1;
+  
+  return (inicio == fim && inicio2 < fim2);
+}
+
+//escalonador
 void fcfs() {
-  int i, at;
+  int i;
+  int at;
   int rodando = 0;
   int t = 0;
   time_t inicio;
@@ -217,16 +221,14 @@ void fcfs() {
   while (1) {
     if (difftime(time(NULL), inicio) >= t) {
       while (processos[i+1].t0 == t) {
-        i++;
+        i++;  
       }
       t++;
     }
-
     if (rodando && processos[at].dt == 0) {
-
       processos[at].tf = difftime(time(NULL),inicio);
+      
       rodando = 0;
-
       if (at + 1 <= i) {
         at++;
         mudancaContexto += 1;
@@ -234,16 +236,13 @@ void fcfs() {
         rodando = 1;
       }
     }
-
     if (!rodando) {
-
       if (at + 1 <= i) {
         at++;
         pthread_mutex_unlock(&sem[at]);
         rodando = 1;
       }
     }
-
     if (!rodando && at + 1 == tamanho) break;
   }
 
@@ -251,7 +250,8 @@ void fcfs() {
 }
 
 void srtn() {
-  int i, j, atual;
+  int i, j;
+  int atual;
   int tamHeap = 0;
   int rodando = 0;
   int t = 0;
@@ -267,9 +267,11 @@ void srtn() {
 
   while (1) {
     if ((int) difftime(time(NULL), inicio) >= t) {
-      for (j = i; j < tamanho && processos[j].t0 == t; j++) 
+
+      for (j = i; j < tamanho && processos[j].t0 == t; j++) {
         insereHeap(heap, &tamHeap, processos[j]);
-      
+      }
+
       i = j;
       if (rodando) {
         pthread_mutex_lock(&full[atual]);
@@ -279,19 +281,21 @@ void srtn() {
           rodando = 0;
           pthread_cancel(processos[atual].thread);
           processos[atual].tf = difftime(time(NULL),inicio);
- 
+
           if (tamHeap > 0) {
+
             atual = heap[0].i;
-            removeMenor(heap, &tamHeap);
+            removeMinimoHeap(heap, &tamHeap);
             mudancaContexto += 1;
             rodando = 1;
           }
         }
         else if (tamHeap > 0 && heap[0].dt < processos[atual].dt) {
-          int pre = atual;
+
+          int anterior = atual;
           atual = heap[0].i;
-          removeMenor(heap, &tamHeap);
-          insereHeap(heap, &tamHeap, processos[pre]);
+          removeMinimoHeap(heap, &tamHeap);
+          insereHeap(heap, &tamHeap, processos[anterior]);
           mudancaContexto += 1;
         }
 
@@ -299,8 +303,9 @@ void srtn() {
       }
       else {
         if (tamHeap > 0) {
+
           atual = heap[0].i;
-          removeMenor(heap, &tamHeap);
+          removeMinimoHeap(heap, &tamHeap);
           pthread_mutex_unlock(&empty[atual]);
           rodando = 1;
         }
@@ -316,34 +321,33 @@ void srtn() {
   freeMutex();
 }
 
-void prioridade(){
+void prioridade() {
   int i, j;
   int atual;
+  int prioridade[tamanho];
   int rodando = 0;
   int t = 0;
-  int menorPrioridade = 19;
-  long int ut = 0;
-  long int quantum = 500000;
+  long int tt = 0;
   Fila fila;
-  struct timeval inicio, agora;
-  int prioridade[tamanho];
+  struct timeval inicio, actual;
 
   mutex();
   pthread();
 
-  i = 0;
-  criaFila(&fila);
-  tempoExecucao = quantum;
-  gettimeofday(&inicio, NULL);
-
-  for (i = 0; i < tamanho; i++) {
-    prioridade[i] = 19;
+  for (i = 0; i < tamanho; i++){
+    prioridade[i] = 1;
   }
 
-  while (1) {
-    gettimeofday(&agora, NULL);
+  i = 0;
+  criaFila(&fila);
+  tempoExecucao = 500000;
+  gettimeofday(&inicio, NULL);
 
-    if (comparacaoMaiorQuantum(ut, agora.tv_usec - inicio.tv_usec, t, difftime(agora.tv_sec, inicio.tv_sec))) {
+  while (1) {
+    gettimeofday(&actual, NULL);
+
+    if (comparaQuantum(tt, actual.tv_usec - inicio.tv_usec, t, difftime(actual.tv_sec, inicio.tv_sec))) {
+      
       for (j = i; j < tamanho && processos[j].t0 == t; j++) {
         insereFila(&fila, processos[j]);
       }
@@ -352,25 +356,26 @@ void prioridade(){
       if (rodando) {
         pthread_mutex_lock(&full[atual]);
 
-        if (processos[atual].dt == 0 && processos[atual].t == 0) {
+        if (processos[atual].dt == 0 && processos[atual].dtt == 0) {
 
           rodando = 0;
           pthread_cancel(processos[atual].thread);
           processos[atual].tf = difftime(time(NULL),inicio.tv_sec);
-    
+      
           if (!filaVazia(&fila)) {
+
             atual = removeFila(&fila).i;
-            prioridade[atual] = prioridade[atual]-1;
+            prioridade[atual] = prioridade[atual] + 1;
             rodando = 1;
             mudancaContexto += 1;
           }
         }
         else if (!filaVazia(&fila)) {
 
-          int pre = atual;
+          int anterior = atual;
           atual = removeFila(&fila).i;
-          prioridade[atual] = prioridade[atual]-1;
-          insereFila(&fila, processos[pre]);
+          prioridade[atual] = prioridade[atual] + 1;
+          insereFila(&fila, processos[anterior]);
           mudancaContexto += 1;
         }
 
@@ -380,23 +385,22 @@ void prioridade(){
         if (!filaVazia(&fila)) {
 
           atual = removeFila(&fila).i;
-          prioridade[atual] = prioridade[atual]-1;
+          prioridade[atual] = prioridade[atual] + 1;
           pthread_mutex_unlock(&empty[atual]);
           rodando = 1;
         }
         else if (i == tamanho) 
           break;
       }
-      if (tempoExecucao + ut >= 1000000) {
+      if (tempoExecucao + tt >= 1000000.0) {
         t++;
-        ut += tempoExecucao - 1000000;
-        // ut -= prioridade[atual];
+        tt += tempoExecucao - 1000000.0;
+        tt += prioridade[atual] * 1000;
       }
       else {
-        ut += tempoExecucao;
-        // ut -= prioridade[atual];
+        tt += tempoExecucao;
+        tt += prioridade[atual] * 1000;
       }
-
     }
   }
 
@@ -404,6 +408,7 @@ void prioridade(){
 }
 
 int main(int argc, char **argv) {
+  
   int i;
   int max = 10000;
   tamanho = 0;
@@ -418,16 +423,16 @@ int main(int argc, char **argv) {
 
   arquivo = fopen(nomeArquivo, "r");
 
-  processos = malloc(10000 * sizeof(Processo));
-  sem = malloc(10000 * sizeof(Processo));
-  empty = malloc(10000 * sizeof(Processo));
-  full = malloc(10000 * sizeof(Processo));
+  processos = malloc(max * sizeof(Processo));
+  sem = malloc(max * sizeof(Processo));
+  empty = malloc(max * sizeof(Processo));
+  full = malloc(max * sizeof(Processo));
 
   while (!feof(arquivo)) {
     if (fscanf(arquivo, "%s %d %d %d", processos[tamanho].nome, &(processos[tamanho].t0), &(processos[tamanho].dt), &(processos[tamanho].deadline)) != 4) {
       continue;
     }
-    processos[tamanho].t = 0;
+    processos[tamanho].dtt = 0;
     processos[tamanho].i = tamanho;
 
     tamanho++;
@@ -436,6 +441,7 @@ int main(int argc, char **argv) {
       Processo *aux_processos;
 
       max *= 2;
+
       aux_processos = malloc(max * sizeof(Processo));
       aux_sem = malloc(max * sizeof(pthread_mutex_t));
       aux_empty = malloc(max * sizeof(pthread_mutex_t));
@@ -459,7 +465,7 @@ int main(int argc, char **argv) {
 
   fclose(arquivo);
   mudancaContexto = 0;
-
+ 
   switch(escalonador) {
     case 1:
       fcfs();
@@ -478,12 +484,11 @@ int main(int argc, char **argv) {
 
   arquivoSaida = fopen(nomeArquivoSaida, "w");
   
-  for (i = 0; i < tamanho; i++){
-
+  for (i = 0; i < tamanho; i++) {
     if (processos[i].tf <= processos[i].deadline)
-      cumpriu = 1;
-    else 
-      cumpriu = 0;
+		cumpriu = 1;
+		else 
+		cumpriu = 0;
 
     fprintf(arquivoSaida, "%s %d %d %d\n", processos[i].nome, processos[i].tf - processos[i].t0, processos[i].tf, cumpriu);
   }
