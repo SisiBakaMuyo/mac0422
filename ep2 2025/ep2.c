@@ -19,7 +19,7 @@ int maxV = 0;
 int *pista[10];
 struct timeval inicio;
 pthread_mutex_t *sem[10], *ciclistasRestantes, *semVolta, randMutex;
-pthread_barreira_t barreira;
+pthread_barrier_t barreira;
 pthread_t *threads;
 No **pilhas;
 Ciclista *Ciclistas;
@@ -30,20 +30,20 @@ int pilhaVazia(No *pilha) {
 }
 
 int tamanhoPilha(No *pilha) {
-  if (empty(pilha))
+  if (pilhaVazia(pilha))
     return 0;
 
   return pilha->tam;
 }
 
 No *push(No *pilha, int id) {
-  No *node = malloc(sizeof(No));
+  No *no = malloc(sizeof(No));
 
-  node->tam = pilhaSize(pilha) + 1;
-  node->id = id;
-  node->prox = pilha;
+  no->tam = tamanhoPilha(pilha) + 1;
+  no->id = id;
+  no->prox = pilha;
   
-  return node;
+  return no;
 }
 
 No *pop(No *pilha) {
@@ -58,7 +58,7 @@ No *pop(No *pilha) {
 }
 
 int top(No *pilha) {
-  if (!empty(pilha))
+  if (!pilhaVazia(pilha))
     return pilha->id;
 
   return -1;
@@ -66,7 +66,7 @@ int top(No *pilha) {
 
 void imprimePilha(No *pilha) {
   No *atual = pilha;
-  int tam = pilhaSize(pilha);
+  int tam = tamanhoPilha(pilha);
   int *posicao = malloc(tam * sizeof(int));
 
   for (int i = 0; i < tam; i++) {
@@ -145,7 +145,7 @@ void insereCiclista(int numero, int m, int n) {
 
 }
 
-void gerapista() {
+void geraPista() {
   int i, restantes;
   int n = 0;
   int atual = k;
@@ -264,12 +264,7 @@ void imprimePista() {
   fprintf(stderr, "\n\n");
 }
 
-
-
-
-
-
-
+//Corrida
 int geraProbabilidades(int id) {
   int prob;
   int valor;
@@ -348,7 +343,7 @@ void changePosition(int Ciclista) {
     if ((n + 1) % d == 0) {
       Ciclistas[Ciclista].volta++;
       volta = Ciclistas[Ciclista].volta;
-      Ciclistas[Ciclista].v = randomv(Ciclista);
+      Ciclistas[Ciclista].v = geraProbabilidades(Ciclista);
 
       gettimeofday(&atualTime, NULL);
 
@@ -387,12 +382,12 @@ void * thread(void * id) {
     while (timeRemaining != 0) {
       
       timeRemaining--;
-      pthread_barreira_wait(&barreira);
+      pthread_barrier_wait(&barreira);
       if (timeRemaining == 0)
         changePosition(Ciclista);
       continua[Ciclista] = 0;
 
-      pthread_barreira_wait(&barreira);
+      pthread_barrier_wait(&barreira);
 
       while (!continua[Ciclista])
         usleep(100);
@@ -432,11 +427,11 @@ void judge(int restantes) {
     else
       usleep(60000);
 
-    pthread_barreira_wait(&barreira);
-    pthread_barreira_wait(&barreira);
+    pthread_barrier_wait(&barreira);
+    pthread_barrier_wait(&barreira);
 
     if (debug)
-      printpista();
+      imprimePista();
 
     someoneHasLeft = 0;
 
@@ -477,7 +472,7 @@ void judge(int restantes) {
 
     if (lapCompleted) {
       printf("\n\nVOLTA %d\n", lap);
-      printpilha(pilhas[lap]);
+      imprimePilha(pilhas[lap]);
 
       if (lap % 2 == 0){
         while (Ciclistas[top(pilhas[lap])].quebrado || Ciclistas[top(pilhas[lap])].desclassificado)
@@ -504,8 +499,8 @@ void judge(int restantes) {
 
     if (someoneHasLeft) {
       if (restantes > 1) {
-        pthread_barreira_destroy(&barreira);
-        pthread_barreira_init(&barreira, NULL, restantes + 1);
+        pthread_barrier_destroy(&barreira);
+        pthread_barrier_init(&barreira, NULL, restantes + 1);
       }
       else {
         lap -= 1;
@@ -518,7 +513,7 @@ void judge(int restantes) {
       continua[i] = 1;
   }
 
-  pthread_barreira_destroy(&barreira);
+  pthread_barrier_destroy(&barreira);
   printf("CICLISTAS QUEBRADOS: %d\n", quebrados);
 }
 
@@ -546,7 +541,7 @@ int main(int argc, char ** argv) {
   ids = malloc(k * sizeof(int));
   continua = malloc(k * sizeof(int));
 
-  pthread_barreira_init(&barreira, NULL, k + 1);
+  pthread_barrier_init(&barreira, NULL, k + 1);
 
 
   for (int i = 0; i < 2 * (k + 1); i++)
@@ -575,12 +570,10 @@ int main(int argc, char ** argv) {
 
   printf("\nCLASSIFICAÇÃO FINAL:\n");
   mergeSort(ids, 0, k - 1, Ciclistas);
-  printposicao(ids, k - 1);
+  imprimePosicao(ids, k - 1);
 
-  free(sem);
   free(semVolta);
   free(ciclistasRestantes);
-  free(barreira);
   free(threads);
   free(pilhas);
   free(Ciclistas);

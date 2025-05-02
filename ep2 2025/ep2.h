@@ -15,6 +15,6 @@ typedef struct ciclista {
 typedef struct no {
   int id;
   int tam;
-  struct No *prox;
+  struct no *prox;
 } No;
 
