@@ -1,0 +1,25 @@
+Ísis Ardisson Logullo - 7577410
+
+Executáveis do EP1:
+
+Com o comando "make" os dois executaveis são gerados.
+É possível gerar os executaveis separadamente com os comandos:
+"make shell" e "make ep1".
+
+Shell:
+
+Execute o shell com o comando "./shell"
+Foram implementados os comandos pedidos.
+Reconhece ls, cd, whoami, chmod e exit.
+Permite a invocação de executáveis.
+
+Simulador de Processos:
+
+Execute o simulador com o comando "./ep1 arg1 arg2 arg3"
+1- First-Come First-Served (FCFS)
+2- Shortest Remaining Time Next (SRTN)
+3- Escalonamento com prioridade
+
+arg1 - 1 = First-Come First-Served, 2 = Shortest Remaining Time Next, 3 = Escalonamento com prioridade
+arg2 - Arquivo de trace
+arg3 - Arquivo de output
