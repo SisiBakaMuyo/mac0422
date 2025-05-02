@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-o
-EP1SHELL= newsh.c 
+EP1SHELL= uspsh.c 
 EP1SIM = ep1.c 
 
 all: shell ep1 clean

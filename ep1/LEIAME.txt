@@ -10,12 +10,16 @@ Shell:
 
 Execute o shell com o comando "./shell"
 Foram implementados os comandos pedidos.
-Reconhece ls, cd, rm, uname e exit.
+Reconhece ls, cd, whoami, chmod e exit.
 Permite a invocação de executáveis.
 
 Simulador de Processos:
 
 Execute o simulador com o comando "./ep1 arg1 arg2 arg3"
-arg1 - 1 = Sortest Job First, 2 = Round Robin, 3 = Escalonamento com prioridade
+1- First-Come First-Served (FCFS)
+2- Shortest Remaining Time Next (SRTN)
+3- Escalonamento com prioridade
+
+arg1 - 1 = First-Come First-Served, 2 = Shortest Remaining Time Next, 3 = Escalonamento com prioridade
 arg2 - Arquivo de trace
 arg3 - Arquivo de output

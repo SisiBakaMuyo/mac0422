@@ -1,80 +1,63 @@
-/* Isis Ardisson Logullo - 7577410*/
+/* Isis Ardisson Logullo 7577410 */
 
-#define MAX_LINE_SIZE 1024
+#include <pthread.h>
 
-typedef struct{
-	float t0; 
-	float dt; 
-	float et; 
-	float deadline;
-	float quantum;
-	char *nome;
-	int i;
-} processo;
+typedef struct processo {
+  int t0;
+  int dt;
+  int tf;
+  int deadline;
+  int i;
+  long int dtt;
+  char nome[32];
+  pthread_t thread;
+} Processo;
 
-typedef struct{
-	float t0;
-	float dt;
-	float deadline;
-	char *nome;
-} linha;
+typedef struct no {
+    Processo data;
+    struct no *proximo;
+    struct no *anterior;
+} No;
 
-typedef struct{
-	processo **v;
-	int topo, max;
-} pilha;
-
-typedef struct{
-	processo **v;
-	int frente, tam, max;
-} fila;
-
-/* pilha */
-int pilhaVazia(pilha *p);
-
-pilha *criaPilha(int MAX);
-
-void insereOrdenado(pilha *p, processo *x);
-
-processo *desempilha(pilha *p);
-
-processo *topoPilha(pilha *p);
-
-void destroiPilha(pilha *p);
-
-/* fila */
-int filaVazia(fila *f);
-
-fila *criaFila(int MAX);
-
-void insere(fila *f, processo *x);
-
-processo *removeFila(fila *f);
-
-void destroiFila(fila *f);
-
-/* leitura */
-linha *criaLinha(int n);
-
-linha **leArquivo(char *nomeArquivo, int *contadorLinha);
-
-/* processos */
-float getTempoExecucao();
-
-void *criaThread(void* arg);
-
-void *criaThreadQuantum(void* arg);
-
-processo *criaProcessoLinha(linha *l, int i, float quantum);
-
-void shortestJobFirst(linha **dados);
-
-void roundRobin(linha **dados);
-
-float escolheQuantum(processo *p);
-
-void escalonamentoComPrioridade(linha **dados);
+typedef struct fila {
+    No *ini;
+    No *fim;
+} Fila;
 
 
+//leitura
+void leArquivo(FILE * arquivo, int max);
 
+//fila
+void criaFila(Fila *fila);
+
+void insereFila(Fila *fila, Processo data);
+
+int filaVazia(Fila *fila);
+
+Processo removeFila(Fila *fila);
+
+//heap
+void insereHeap(Processo *heap, int *tamanho, Processo valor);
+
+void transformaHeap(Processo *heap, int *tamanho, int i);
+
+void removeHeap(Processo *heap, int *tamanho);
+
+//thread
+void * thread(void * atual);
+
+void pthread();
+
+//semaforo
+void mutex();
+
+void freeMutex();
+
+//escalonador
+void fcfs();
+
+void srtn();
+
+void prioridade();
 
