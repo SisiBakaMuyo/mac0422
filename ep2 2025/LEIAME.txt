@@ -1,0 +1,7 @@
+Para compilar o EP, basta executar o comando make no diretório raiz do EP.
+A execução do EP é feita da seguinte maneira:
+
+./ep2 d n -d
+
+A flag -d (debug) é opcional e aciona o modo debug
+
