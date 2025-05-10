@@ -1,7 +1,23 @@
-Para compilar o EP, basta executar o comando make no diretório raiz do EP.
+Para compilar o EP2, basta executar o comando:
+
+make
+
 A execução do EP é feita da seguinte maneira:
 
-./ep2 d n -d
+./ep2 d k i -debug
 
-A flag -d (debug) é opcional e aciona o modo debug
+ou
+
+./ep2 d k e -debug
+
+Onde:
+
+d são os metros da pista
+k sao os numeros de ciclistas
+(100 ≤ d ≤ 2500 e 5 ≤ k ≤ 5 × d))
+i é o modo ingênuo de visualização das voltas (apenas mostram os eliminados e os quebrados por volta)
+e é o modo eficiênte de visualização das voltas (mostra as posições de cada ciclista + as infos de i)
+-debug mostra apenas o desenho da pista em cada momento
+
+A flag -debug é opcional.
 

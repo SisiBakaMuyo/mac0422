@@ -5,24 +5,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h>
 #include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include "ep2.h"
 
 
-int d, k, controle;
+int d, k;
+char *controle;
 int *continua;
 int debug = 0;
 int quebrados = 0;
 int maxV = 0;
 int *pista[10];
+
 struct timeval inicio;
-pthread_mutex_t *sem[10], *ciclistasRestantes, *semVolta, randMutex;
-pthread_barrier_t barreira;
-pthread_t *threads;
+
 No **pilhas;
 Ciclista *Ciclistas;
+pthread_t *threads;
+pthread_barrier_t barreira;
+pthread_mutex_t *sem[10], *ciclistasRestantes, *semVolta, mutexProb;
+
 
 //Pilha
 int pilhaVazia(No *pilha) {
@@ -36,11 +41,11 @@ int tamanhoPilha(No *pilha) {
   return pilha->tam;
 }
 
-No *push(No *pilha, int id) {
+No *push(No *pilha, int numero) {
   No *no = malloc(sizeof(No));
 
   no->tam = tamanhoPilha(pilha) + 1;
-  no->id = id;
+  no->numero = numero;
   no->prox = pilha;
   
   return no;
@@ -59,7 +64,7 @@ No *pop(No *pilha) {
 
 int top(No *pilha) {
   if (!pilhaVazia(pilha))
-    return pilha->id;
+    return pilha->numero;
 
   return -1;
 }
@@ -70,12 +75,12 @@ void imprimePilha(No *pilha) {
   int *posicao = malloc(tam * sizeof(int));
 
   for (int i = 0; i < tam; i++) {
-    posicao[i] = atual->id;
+    posicao[i] = atual->numero;
     atual = atual->prox;
   }
 
   for (int j = tam - 1, p = 1; j >= 0; j--, p++) {
-    printf("%dº lugar\n -> %d ciclista", p, posicao[j] + 1);
+    printf("%dº lugar -> %d ciclista\n", p, posicao[j] + 1);
   }
 
   free(posicao);
@@ -134,7 +139,7 @@ void insereCiclista(int numero, int m, int n) {
   int id = numero - 1;
 
   pista[m][n] = numero;
-  Ciclistas[id].id = numero;
+  Ciclistas[id].numero = numero;
   Ciclistas[id].m = m;
   Ciclistas[id].n = n;
   Ciclistas[id].v = 1;
@@ -210,7 +215,7 @@ void mutex() {
     pthread_mutex_init(&semVolta[i], NULL);
   
 
-  pthread_mutex_init(&randMutex, NULL);
+  pthread_mutex_init(&mutexProb, NULL);
 
 
   for (int i = 0; i < 10; i++) {
@@ -226,24 +231,22 @@ void mutex() {
 
 }
 
-
-
 //Impressoes
 void imprimePosicao(int *v, int b) {
   int posicao = 1, i;
 
-  printf("%dº lugar -> ciclista %d : %lf segundos\n", posicao, Ciclistas[v[b]].id, Ciclistas[v[b]].tempo);
+  printf("%dº lugar -> ciclista %d : %lf segundos\n", posicao, Ciclistas[v[b]].numero, Ciclistas[v[b]].tempo);
 
   for (i = b - 1; i >= 0; i--) {
     if (!Ciclistas[v[i]].quebrado) {
       posicao++;
-      printf("%dº lugar -> ciclista %d : %lf segundos\n", posicao, Ciclistas[v[i]].id, Ciclistas[v[i]].tempo);
+      printf("%dº lugar -> ciclista %d : %lf segundos\n", posicao, Ciclistas[v[i]].numero, Ciclistas[v[i]].tempo);
     }
   }
 
   for (i = b - 1; i >= 0; i--) {
     if (Ciclistas[v[i]].quebrado) {
-      printf("QUEBROU!! Ciclista %d, volta %d : %lf segundos\n", Ciclistas[v[i]].id, Ciclistas[v[i]].volta, Ciclistas[v[i]].tempo);
+      printf("Ciclista %d ***Quebrou*** : %lf segundos\n", Ciclistas[v[i]].numero, Ciclistas[v[i]].tempo);
     }
   }
 }
@@ -251,45 +254,49 @@ void imprimePosicao(int *v, int b) {
 void imprimePista() {
   fprintf(stderr, "\n\n");
 
-  for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < d; j++) {
-
-      fprintf(stderr, "%3d|  ", pista[i][j]);
+  for (int j = 0; j < d; j++) {
+  
+    for (int i = 0; i < 10; i++) {
+    
+      if (pista[i][j] == 0)
+        fprintf(stderr, "  .|  ");
+      else if (pista[i][j] < 10)
+        fprintf(stderr, "  %d|  ", pista[i][j]);
+      else
+        fprintf(stderr, " %d|  ", pista[i][j]);
     }
 
     fprintf(stderr, "\n");
-
   }
 
   fprintf(stderr, "\n\n");
 }
 
 //Corrida
-int geraProbabilidades(int id) {
+int geraProbabilidades(int numero) {
   int prob;
   int valor;
 
-  pthread_mutex_lock(&randMutex);
+  pthread_mutex_lock(&mutexProb);
   valor = (rand() % 100) + 1;
-  pthread_mutex_unlock(&randMutex);
+  pthread_mutex_unlock(&mutexProb);
 
-  if (Ciclistas[id].v == 3)
-    return 3;
+  switch (Ciclistas[numero].v) {
 
-  if (Ciclistas[id].volta >= 2 * (k - quebrados - 1)) {
-    if (valor <= 10)
-      return 3;
-  }
-
-  switch (Ciclistas[id].v) {
     case 1:
-      prob = 20;
+
+      prob = 25;
       break;
+
     case 2:
-      prob = 40;
+
+      prob = 55;
       break;
+
     default:
+
       break;
+
   }
 
   if (valor > prob)
@@ -298,9 +305,9 @@ int geraProbabilidades(int id) {
     return 1;
 }
 
-void changePosition(int Ciclista) {
-  int m, n, changed = 0, volta;
-  struct timeval atualTime;
+void mudaPosicao(int Ciclista) {
+  int m, n, mudanca = 0, volta;
+  struct timeval tempoAtual;
 
   m = Ciclistas[Ciclista].m;
   n = Ciclistas[Ciclista].n;
@@ -308,30 +315,38 @@ void changePosition(int Ciclista) {
   pthread_mutex_lock(&sem[m][n]);
 
   if (Ciclistas[Ciclista].volta >= 2 * k) {
+
     Ciclistas[Ciclista].terminou = 1;
     pthread_mutex_unlock(&sem[m][n]);
+
     return;
   }
 
   pthread_mutex_lock(&sem[m][(n + 1) % d]);
+
   if (pista[m][(n + 1) % d] == 0) {
+
     Ciclistas[Ciclista].n = (n + 1) % d;
     pista[m][(n + 1)% d] = Ciclista + 1;
-    changed = 1;
+    mudanca = 1;
+
     pthread_mutex_unlock(&sem[m][(n + 1) % d]);
-  }
-  else {
+  }else {
+    
     pthread_mutex_unlock(&sem[m][(n + 1) % d]);
 
-    for (int i = m + 1; i < 10 && !changed; i++) {
+    for (int i = m + 1; i < 10 && !mudanca; i++) {
+
       pthread_mutex_lock(&sem[i][n]);
       pthread_mutex_lock(&sem[i][(n + 1) % d]);
 
       if (pista[i][n] == 0 && pista[i][(n + 1) % d] == 0) {
+
         Ciclistas[Ciclista].m = i;
         Ciclistas[Ciclista].n = (n + 1) % d;
         pista[i][(n + 1) % d] = Ciclista + 1;
-        changed = 1;
+        mudanca = 1;
+
       }
 
       pthread_mutex_unlock(&sem[i][(n + 1) % d]);
@@ -339,54 +354,66 @@ void changePosition(int Ciclista) {
     }
   }
 
-  if (changed) {
+  if (mudanca) {
+
     if ((n + 1) % d == 0) {
+
       Ciclistas[Ciclista].volta++;
       volta = Ciclistas[Ciclista].volta;
       Ciclistas[Ciclista].v = geraProbabilidades(Ciclista);
 
-      gettimeofday(&atualTime, NULL);
+      gettimeofday(&tempoAtual, NULL);
 
-      Ciclistas[Ciclista].tempo = atualTime.tv_sec - inicio.tv_sec;
-      Ciclistas[Ciclista].tempo += (atualTime.tv_usec - inicio.tv_usec) / 1e6;
+      Ciclistas[Ciclista].tempo = tempoAtual.tv_sec - inicio.tv_sec;
+      Ciclistas[Ciclista].tempo += (tempoAtual.tv_usec - inicio.tv_usec) / 1e6;
       
       pthread_mutex_lock(&semVolta[volta]);
       pilhas[volta] = push(pilhas[volta], Ciclista);
       pthread_mutex_unlock(&semVolta[volta]);
     }
+
     pista[m][n] = 0;
   }
 
   pthread_mutex_unlock(&sem[m][n]);
 }
 
-void * thread(void * id) {
-  int Ciclista = *((int *) id);
-  int count = 10;
-  int timeRemaining = 0;
-  int executionTime = 0;
+void *thread(void *numero) {
+  int cont = 10;
+  int tempoExecucao = 0;
+  int tempoRestante = 0;
+  int Ciclista = *((int *) numero);
 
   while (1) {
+
     switch (Ciclistas[Ciclista].v) {
+
       case 1:
-        timeRemaining = (maxV ? 6 : 2);
+
+        tempoRestante = (maxV ? 6 : 2);
         break;
+
       case 2:
-        timeRemaining = (maxV ? 3 : 1);
+
+        tempoRestante = (maxV ? 3 : 1);
         break;
+
       default:
-        timeRemaining = 1;
+
+        tempoRestante = 1;
         break;
+
     }
 
-    while (timeRemaining != 0) {
+    while (tempoRestante != 0) {
       
-      timeRemaining--;
+      tempoRestante--;
       pthread_barrier_wait(&barreira);
-      if (timeRemaining == 0)
-        changePosition(Ciclista);
-      continua[Ciclista] = 0;
 
+      if (tempoRestante == 0)
+        mudaPosicao(Ciclista);
+
+      continua[Ciclista] = 0;
       pthread_barrier_wait(&barreira);
 
       while (!continua[Ciclista])
@@ -395,32 +422,31 @@ void * thread(void * id) {
       if (Ciclistas[Ciclista].quebrado || Ciclistas[Ciclista].desclassificado)
         pthread_exit(NULL);
 
-      if (!executionTime && maxV) {
-        executionTime = 1;
-        timeRemaining *= 3;
+      if (!tempoExecucao && maxV) {
+
+        tempoExecucao = 1;
+        tempoRestante *= 3;
+
       }
     }
 
     
-    count--;
+    cont--;
   }
 
   return NULL;
 }
 
-void judge(int restantes) {
-  int lap = 1, m, n;
+void decidePosicao(int restantes) {
   int atual;
-  int quebradoProbability;
-  int someoneHasLeft;
-  int lapCompleted;
+  int sobrou;
+  int probQuebrar;
+  int volta = 1, m, n;
+  int voltaCompleta;
 
   while (restantes > 1) {
+
     maxV = 0;
-    for (int i = 0; i < n; i++) {
-      if (Ciclistas[i].v == 3)
-        maxV = 1;
-    }
 
     if (maxV)
       usleep(20000);
@@ -433,27 +459,29 @@ void judge(int restantes) {
     if (debug)
       imprimePista();
 
-    someoneHasLeft = 0;
+    sobrou = 0;
 
     if (restantes > 5) {
-      for (int i = 0; i < n; i++) {
-        quebradoProbability = (rand() % 100) + 1;
+
+      for (int i = 0; i < k; i++) {
+
+        probQuebrar = (rand() % 100) + 1;
 
         if (Ciclistas[i].volta == 0 || Ciclistas[i].quebrado || Ciclistas[i].desclassificado || Ciclistas[i].terminou)
           continue;
         
-        if (quebradoProbability <= 5 && Ciclistas[i].volta % 6 == 0 && Ciclistas[i].n == 0) {
+        if (probQuebrar <= 5 && Ciclistas[i].volta % 6 == 0 && Ciclistas[i].n == 0) {
+
           Ciclistas[i].quebrado = 1;
 
-          printf("Ciclista %d quebrou!! ", Ciclistas[i].id);
-          printf("Ele estava na volta %d\n", Ciclistas[i].volta);
+          if (!debug)
+            printf("Ciclista %d ***Quebrou***\n", Ciclistas[i].numero);
 
           quebrados += 1;
           restantes--;
 
           pista[Ciclistas[i].m][Ciclistas[i].n] = 0;
-
-          someoneHasLeft = 1;
+          sobrou = 1;
 
           if (restantes == 5)
             break;
@@ -461,69 +489,90 @@ void judge(int restantes) {
       }
     }
 
-    lapCompleted = 1;
+    voltaCompleta = 1;
 
-    for (int i = 0; i < n; i++)
-      if (!Ciclistas[i].quebrado && !Ciclistas[i].desclassificado && Ciclistas[i].volta < lap) {
-        lapCompleted = 0;
+    for (int i = 0; i < k; i++)
+
+      if (!Ciclistas[i].quebrado && !Ciclistas[i].desclassificado && Ciclistas[i].volta < volta) {
+
+        voltaCompleta = 0;
         break;
+
       }
     
 
-    if (lapCompleted) {
-      printf("\n\nVOLTA %d\n", lap);
-      imprimePilha(pilhas[lap]);
+    if (voltaCompleta) {
 
-      if (lap % 2 == 0){
-        while (Ciclistas[top(pilhas[lap])].quebrado || Ciclistas[top(pilhas[lap])].desclassificado)
-          pilhas[lap] = pop(pilhas[lap]);
+      if (!debug)
+        printf("\n\nVolta: %d\n", volta);
 
-        if (Ciclistas[top(pilhas[lap])].n == 0) {
-          atual = top(pilhas[lap]);
-          pilhas[lap] = pop(pilhas[lap]);
+      if (strcmp("e", controle) == 0 && !debug)
+        imprimePilha(pilhas[volta]);
+
+      if (volta % 2 == 0){
+
+        while (Ciclistas[top(pilhas[volta])].quebrado || Ciclistas[top(pilhas[volta])].desclassificado)
+          pilhas[volta] = pop(pilhas[volta]);
+
+        if (Ciclistas[top(pilhas[volta])].n == 0) {
+
+          atual = top(pilhas[volta]);
+          pilhas[volta] = pop(pilhas[volta]);
+
           Ciclistas[atual].desclassificado = 1;
           m = Ciclistas[atual].m;
           n = Ciclistas[atual].n;
 
-          printf("Ciclista %d foi embora!! ", atual + 1);
-          printf("Tempo final ciclista %d: %lf\n", atual + 1, Ciclistas[atual].tempo);         
-          restantes--;
+          if (!debug) {
 
+            printf("Ciclista %d eliminado -> ", atual + 1);
+            printf("Tempo: %lf\n", Ciclistas[atual].tempo);  
+
+          }
+
+          restantes--;
           pista[m][n] = 0;
-    
-          someoneHasLeft = 1;
+          sobrou = 1;
+
         }
       }
-      lap += 1;
+
+      volta += 1;
     }
 
-    if (someoneHasLeft) {
+    if (sobrou) {
+
       if (restantes > 1) {
+
         pthread_barrier_destroy(&barreira);
         pthread_barrier_init(&barreira, NULL, restantes + 1);
-      }
-      else {
-        lap -= 1;
-        printf("CICLISTA VENCEDOR: %d\n", top(pilhas[lap]) + 1);
-        Ciclistas[top(pilhas[lap])].desclassificado = 1;
+
+      }else {
+
+        volta -= 1;
+
+        printf("\n***Vencedor***: %d\n", top(pilhas[volta]) + 1);
+
+        Ciclistas[top(pilhas[volta])].desclassificado = 1;
+
       }
     }
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < k; i++)
       continua[i] = 1;
   }
 
   pthread_barrier_destroy(&barreira);
-  printf("CICLISTAS QUEBRADOS: %d\n", quebrados);
+  printf("Qtd de quebrados: %d\n", quebrados);
+
 }
 
-
 int main(int argc, char ** argv) {
-  int *ids;
+  int *numeros;
 
   d = atoi(argv[1]);
   k = atoi(argv[2]);
-  controle = atoi(argv[3]);
+  controle = argv[3];
 
   for (int i = 4; i < argc; i++) {
     if (argv[i][0] == '-') 
@@ -538,7 +587,7 @@ int main(int argc, char ** argv) {
   Ciclistas = malloc(k * sizeof(Ciclista));
   threads = malloc(k * sizeof(pthread_t));
   
-  ids = malloc(k * sizeof(int));
+  numeros = malloc(k * sizeof(int));
   continua = malloc(k * sizeof(int));
 
   pthread_barrier_init(&barreira, NULL, k + 1);
@@ -557,20 +606,21 @@ int main(int argc, char ** argv) {
     imprimePista();
 
   for (int i = 0; i < k; i++) {
-    ids[i] = i;
-    pthread_create(&threads[i], NULL, thread, &ids[i]);
+
+    numeros[i] = i;
+    pthread_create(&threads[i], NULL, thread, &numeros[i]);
+
   }
 
-  judge(k);
-
-  printf("\nFIM DA CORRIDA!!!\n");
+  decidePosicao(k);
 
   if (debug)
     imprimePista();
 
-  printf("\nCLASSIFICAÇÃO FINAL:\n");
-  mergeSort(ids, 0, k - 1, Ciclistas);
-  imprimePosicao(ids, k - 1);
+  printf("\nPodio:\n");
+
+  mergeSort(numeros, 0, k - 1, Ciclistas);
+  imprimePosicao(numeros, k - 1);
 
   free(semVolta);
   free(ciclistasRestantes);
