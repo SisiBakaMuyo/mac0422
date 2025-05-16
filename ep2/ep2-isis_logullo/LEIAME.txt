@@ -14,7 +14,7 @@ Onde:
 
 d são os metros da pista
 k sao os numeros de ciclistas
-(100 ≤ d ≤ 2500 e 5 ≤ k ≤ 5 × d))
+(100 ≤ d ≤ 2500 e 5 ≤ k ≤ 5 × d)
 i é o modo ingênuo de visualização das voltas (apenas mostram os eliminados e os quebrados por volta)
 e é o modo eficiênte de visualização das voltas (mostra as posições de cada ciclista + as infos de i)
 -debug mostra apenas o desenho da pista em cada momento

@@ -1,61 +1,63 @@
-// Isis Ardisson Logullo 7577410
+/* Isis Ardisson Logullo 7577410 */
 
 typedef struct ciclista {
-  int id;
-  int posicaoColuna;
-  int posicaoLinha;
-  int velocidade;
-  int volta;
-  int eliminado;
+  int numero;
+  int m; //linha
+  int n; //coluna
+  int v; //velocidade
   int terminou;
+  int volta;
   int quebrado;
-  double tempoExecucao;
+  int desclassificado;
+  double tempo;
 } Ciclista;
 
-// typedef struct queueNode {
-//   int id;
-//   struct queueNode *next;
-// } QueueNode;
+typedef struct no {
+  int numero;
+  int tam;
+  struct no *prox;
+} No;
 
-// typedef struct queue{
-//    QueueNode *head;
-//    QueueNode *tail;
-// } Queue;
 
-typedef struct stackNode {
-  int id;
-  int size;
-  struct stackNode *next;
-} StackNode;
+//Pilha
+int pilhaVazia(No *pilha);
 
-// void enqueue(QueueNode *novo, int id);
-// int dequeue();
-// int queueSizeQueue(QueueNode *q);
-// Queue *criaFila();
-// void freeQueue();
-// int queueEmpty();
-// void printQueue(QueueNode *node);
-// int primeiroElemento();
+int tamanhoPilha(No *pilha);
 
-int stackEmpty(StackNode *stack);
-int stackSize(StackNode *stack);
-int top(StackNode *stack);
-StackNode *push(StackNode *stack, int id);
-StackNode *pop(StackNode *stack);
-void printStack(StackNode *stack);
-void merge(int *vetor, int a, int q, int b, Ciclista *ciclistas);
-void mergeSort(int *vetor, int a, int b, Ciclista *ciclistas);
-void printRank(int *vetor, int b);
-int randomVelocidade(int id);
-void mudaPosicao(int ciclista);
-void * thread(void * id);
-void printPista();
-void juiz(int ciclistasRestantes);
-void insereCiclistaPista(int numeroCiclistas, int linha, int coluna);
-void inicioPista();
-void inicioMutex();
-void geraSaida(char *nome);
-void freeMemoria(int *ids);
+No *push(No *pilha, int numero);
+
+No *pop(No *pilha);
+
+int top(No *pilha);
+
+void imprimePilha(No *pilha);
+
+//MergeSort
+void merge(int *v, int p, int q, int r, Ciclista *ciclistas);
+
+void mergeSort(int *v, int p, int r, Ciclista *ciclistas);
+
+//Inicializacoes
+void insereCiclista(int numero, int m, int n);
+
+void geraPista();
+
+void mutex();
+
+//Impressoes
+void imprimePosicao(int *v, int b);
+
+void imprimePista();
+
+//Corrida
+int geraProbabilidades(int numero);
+
+void mudaPosicao(int Ciclista);
+
+void *thread(void *numero);
+
+void decidePosicao(int restantes);
+
 
 
 
