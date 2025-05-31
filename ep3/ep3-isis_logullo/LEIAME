@@ -1,0 +1,15 @@
+Ep3
+
+Para executar o Ep3 primeiro use o comando:
+
+> make
+
+Após a criação do executável use o comando:
+
+> ./ep3 n entrada.pgm trace.txt saida.pgm
+
+São necessários:
+1- número correspondente ao tipo de algoritmo usado (1-first fit, 2- next fit, 3- best fit, 4- worst fit).
+2- um arquivo de entrada pgm que descreve o estado inicial da memória.
+3- um arquivo de trace que informe o número da linha e a quantidade de unidades de alocação sendo requisitadas naquela linha.
+4- o nome do arquivo de saida que o simulador devolverá.
