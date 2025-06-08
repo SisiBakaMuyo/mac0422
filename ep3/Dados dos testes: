@@ -1,0 +1,183 @@
+Dados dos testes:
+ic: media +- 0.95 * (dp/2,24)
+
+
+trace-1 (next-fit)
+
+1)first-fit
+0m0,036s
+0m0,028s
+0m0,044s
+0m0,037s
+0m0,035s
+
+média = 0,036s       dp = 0,005    ic = 0,034s a 0,038s
+
+2)next-fit
+0m0,018s
+0m0,035s
+0m0,027s
+0m0,026s
+0m0,024s
+
+média = 0,026s       dp = 0,005    ic = 0,024s a 0,028s
+
+3)best-fit
+0m0,501s
+0m0,545s
+0m0,540s
+0m0,543s
+0m0,574s
+
+média = 0,541s       dp = 0,023    ic = 0,531s a 0,551s
+
+4)worst-fit
+0m0,525s
+0m0,524s
+0m0,584s
+0m0,510s
+0m0,551s
+
+média = 0,539s       dp = 0,026    ic = 0,528s a 0,550s
+
+
+
+trace-2 (first fit)
+
+1)first-fit
+0m0,031s
+0m0,035s
+0m0,041s
+0m0,044s
+0m0,031s
+
+média = 0,036s      dp = 0,005     ic = 0,034s a 0,038s
+
+2)next-fit
+0m0,058s
+0m0,046s
+0m0,058s
+0m0,054s
+0m0,074s
+
+média = 0,058s      dp = 0,009     ic = 0,054s a 0,062s
+
+3)best-fit
+0m0,578s
+0m0,600s
+0m0,571s
+0m0,536s
+0m0,536s
+
+média = 0,564s      dp = 0,025     ic = 0,553s a 0,575s
+
+4)worst-fit
+0m0,554s
+0m0,534s
+0m0,588s
+0m0,747s
+0m0,548s
+
+média = 0,594s      dp = 0,078     ic = 0,561s a 0,627s
+
+
+
+trace-3 (worstfit)
+
+1)first-fit
+0m0,056s
+0m0,056s
+0m0,053s
+0m0,055s
+0m0,042s
+
+média = 0,052s     dp = 0,005      ic = 0,050s a 0,054s
+
+2)next-fit
+0m0,076s
+0m0,094s
+0m0,041s
+0m0,043s
+0m0,070s
+
+média = 0,065s     dp = 0,02       ic  = 0,056s a 0,073s
+
+3)best-fit
+0m0,570s
+0m0,560s
+0m0,577s
+0m0,585s
+0m0,561s
+
+média = 0,571s     dp = 0,01       ic = 0,567s a 0,575s
+
+4)worst-fit
+0m0,514s
+0m0,526s
+0m0,530s
+0m0,514s
+0m0,524s
+
+média = 0,522s     dp = 0,006      ic = 0,519s a 0,524s
+
+
+trace-4 (bestfit)
+
+1)first-fit
+0m0,048s
+0m0,094s
+0m0,086s
+0m0,055s
+0m0,058s
+
+média = 0,068s     dp = 0,018      ic = 0,060s  a 0,076s
+
+2)next-fit
+0m0,059s
+0m0,086s
+0m0,050s
+0m0,085s
+0m0,087s
+
+média = 0,073s     dp = 0,016      ic = 0,066s a 0,081s
+
+3)best-fit
+0m0,541s
+0m0,536s
+0m0,509s
+0m0,534s
+0m0,523s
+
+média = 0,529s     dp = 0,011      ic = 0,524s a 0,534s
+
+4)worst-fit
+0m0,563s
+0m0,576s
+0m0,586s
+0m0,572s
+0m0,580s
+
+média = 0,575s     dp = 0,008      ic = 0,572s a 0,578s
+
+
+
+Tempo x Trace - First Fit
+
+Tipo de trace por vantagem de algoritmo
+
+Tempo de execução em segundos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
