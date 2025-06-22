@@ -18,229 +18,73 @@ gcc ep4-clientes+servidores/ep4-cliente-inet.c -o /tmp/ep4-cliente-inet
 echo "Compilando ep4-cliente-unix"
 gcc ep4-clientes+servidores/ep4-cliente-unix.c -o /tmp/ep4-cliente-unix
 
-echo ">>>>>>> Gerando um arquivo texto de: $2 MB..."
-bytes=$((1048576 * $2))
-base64 /dev/urandom | head -c $bytes > /tmp/arquivo_$2MB.txt
-echo >> /tmp/arquivo_$2MB.txt
+lista_servidores=("ep4-servidor-inet_processos" "ep4-servidor-inet_threads" "ep4-servidor-inet_muxes" "ep4-servidor-unix_threads")
+arqc=1
 
-echo "Subindo o servidor ep4-servidor-inet_processos"
-gnome-terminal -- bash -c "/tmp/./ep4-servidor-inet_processos"   # abre uma nova janela de terminal e executa 
-PID_ep4_servidor_inet_processos=$(pgrep -f ep4-servidor-inet_processos)
+#laco gerador dos arquivos
+for arq in "$@"; do
+    if ((arqc > 1)); then
+        echo ">>>>>>> Gerando um arquivo texto de: $arq MB..."
+        bytes=$((1048576 * $arq))
+        base64 /dev/urandom | head -c $bytes > /tmp/arquivo_MB$arq.txt
+        echo >> /tmp/arquivo_MB$arq.txt
 
-echo ">>>>>>> Fazendo $1 clientes ecoarem um arquivo de: $2 MB..."
-for ((i = 1; i < $1 + 1; i++)); do
-    /tmp/./ep4-cliente-inet /tmp/arquivo_$2MB.txt; 
+        servc=0
+        #laco ativador de servidores
+        for servidor in "${lista_servidores[@]}"; do
+            echo "Subindo o servidor $servidor" 
+            gnome-terminal -- bash -c "/tmp/./$servidor"    
+            PID_servidor=$(pgrep -f $servidor)
+
+            #laco criador de clientes
+            echo ">>>>>>> Fazendo $1 clientes ecoarem um arquivo de: $arq MB..."
+            for ((j = 1; j < $1 + 1; j++)); do
+                if (($servc < 3)); then
+                    /tmp/./ep4-cliente-inet 127.0.0.1 < /tmp/arquivo_MB$arq.txt &>/dev/null & 
+                else
+                    /tmp/./ep4-cliente-unix 127.0.0.1 < /tmp/arquivo_MB$arq.txt &>/dev/null &
+                fi    
+            done
+            ((servc++))
+
+            output=0
+            echo "Esperando os clientes terminarem..."
+            while ((output != $1)); do
+                output=$(journalctl -q --since "1 hour ago" | grep $servidor | grep "provavelmente enviou um exit" | wc -l)
+            done
+
+            echo "Verificando os instantes de tempo no journald..."
+            dia_ini=$(journalctl -q --since "1 hour ago" | grep $servidor | grep "Passou pelo accept :-)" | head -n 1 | cut -c 1-6)
+            hora_ini=$(journalctl -q --since "1 hour ago" | grep $servidor | grep "Passou pelo accept :-)" | head -n 1 | cut -c 8-15)
+            data_ini=$(date -d "$dia_ini" +%Y-%m-%d)
+            inicio="$data_ini $hora_ini"
+            
+            dia_fim=$(journalctl -q --since "1 hour ago" | grep $servidor | grep "provavelmente enviou um exit" | tail -n 1 | cut -c 1-6)
+            hora_fim=$(journalctl -q --since "1 hour ago" | grep $servidor | grep "provavelmente enviou um exit" | tail -n 1 | cut -c 8-15)
+            data_fim=$(date -d "$dia_ini" +%Y-%m-%d)
+            fim="$data_fim $hora_fim"
+
+            tempo_total=$(dateutils.ddiff "$inicio" "$fim" -f "%0M:%0S")
+
+            echo ">>>>>>> $1 clientes encerraram a conexão"
+            echo ">>>>>>> Tempo para servir os $1 clientes com o $servidor: $tempo_total"
+            echo "Enviando um sinal 15 para o servidor $servidor..."
+            kill -15 $PID_servidor
+        done
+    fi  
+    ((arqc++))  
+done    
+
+arquivos=""
+arquivosc=1
+for arg in "$@"; do
+    if ((arquivosc > 1)); then
+        arquivos+=" $arg MB"
+    fi  
+    ((arquivosc++))  
 done
 
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-
-echo ">>>>>>> $1 clientes encerraram a conexão"
-
-
-echo ">>>>>>> Tempo para servir os $1 clientes com o ep4-servidor-inet_processos: 00:01"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-inet_processos..."
-kill -15 $PID_ep4_servidor_inet_processos
-
-
-echo "Subindo o servidor ep4-servidor-inet_threads"
-
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 5MB..."
-
-
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-inet_threads: 00:01"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-inet_threads..."
-
-
-
-echo "Subindo o servidor ep4-servidor-inet_muxes"
-
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 5MB..."
-
-
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-inet_muxes: 00:02"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-inet_muxes..."
-
-
-
-echo "Subindo o servidor ep4-servidor-unix_threads"
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 5MB..."
-
-
-echo "Esperando os clientes terminarem..."
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-unix_threads: 00:01"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-unix_threads..."
-
-
-
-echo ">>>>>>> Gerando um arquivo texto de: 10MB..."
-
-
-
-echo "Subindo o servidor ep4-servidor-inet_processos"
-
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 10MB..."
-
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-inet_processos: 00:03"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-inet_processos..."
-
-
-
-echo "Subindo o servidor ep4-servidor-inet_threads"
-
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 10MB..."
-
-
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-inet_threads: 00:03"
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-inet_threads..."
-
-
-
-echo "Subindo o servidor ep4-servidor-inet_muxes"
-
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 10MB..."
-
-
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-inet_muxes: 00:03"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-inet_muxes..."
-
-
-
-echo "Subindo o servidor ep4-servidor-unix_threads"
-
-
-
-echo ">>>>>>> Fazendo 10 clientes ecoarem um arquivo de: 10MB..."
-
-
-
-echo "Esperando os clientes terminarem..."
-
-
-
-echo "Verificando os instantes de tempo no journald..."
-
-
-echo ">>>>>>> 10 clientes encerraram a conexão"
-
-
-echo ">>>>>>> Tempo para servir os 10 clientes com o ep4-servidor-unix_threads: 00:01"
-
-
-
-echo "Enviando um sinal 15 para o servidor ep4-servidor-unix_threads..."
-
-
-
-echo ">>>>>>> Gerando o gráfico de 10 clientes com arquivos de: 5MB 10MB"
+echo ">>>>>>> Gerando o gráfico de $1 clientes com arquivos de: $arquivos"
 
 
 
