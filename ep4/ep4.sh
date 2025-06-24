@@ -21,13 +21,21 @@ gcc ep4-clientes+servidores/ep4-cliente-unix.c -o /tmp/ep4-cliente-unix
 lista_servidores=("ep4-servidor-inet_processos" "ep4-servidor-inet_threads" "ep4-servidor-inet_muxes" "ep4-servidor-unix_threads")
 arqc=1
 
+touch /tmp/ep4-resultados-$1.data 
+
 #laco gerador dos arquivos
 for arq in "$@"; do
+    linha_data=""
+
     if ((arqc > 1)); then
+        linha_data+="$arq "
+
         echo ">>>>>>> Gerando um arquivo texto de: $arq MB..."
         bytes=$((1048576 * $arq))
         base64 /dev/urandom | head -c $bytes > /tmp/arquivo_MB$arq.txt
         echo >> /tmp/arquivo_MB$arq.txt
+
+        echo "$arq " > /tmp/ep4-resultados-$1.data 
 
         servc=0
         #laco ativador de servidores
@@ -65,14 +73,17 @@ for arq in "$@"; do
             fim="$data_fim $hora_fim"
 
             tempo_total=$(dateutils.ddiff "$inicio" "$fim" -f "%0M:%0S")
+            linha_data+="$tempo_total "
 
             echo ">>>>>>> $1 clientes encerraram a conexão"
             echo ">>>>>>> Tempo para servir os $1 clientes com o $servidor: $tempo_total"
             echo "Enviando um sinal 15 para o servidor $servidor..."
-            kill -15 $PID_servidor
+            gnome-terminal -- bash -c "kill -15 $PID_servidor"
         done
     fi  
-    ((arqc++))  
+    
+    ((arqc++)) 
+    echo "$linha_data" >> /tmp/ep4-resultados-$1.data 
 done    
 
 arquivos=""
@@ -86,6 +97,26 @@ done
 
 echo ">>>>>>> Gerando o gráfico de $1 clientes com arquivos de: $arquivos"
 
+touch /tmp/ep4-resultados-$1.gpi 
+
+echo "set ydata time
+set timefmt \"%M:%S\"
+set format y \"%M:%S\"
+set xlabel 'Dados transferidos por cliente (MB)'
+set ylabel 'Tempo para atender 100 clientes concorrentes'
+set terminal pdfcairo
+set output \"ep4-resultados-100.pdf\"
+set grid
+set key top left
+plot \"/tmp/ep4-resultados-$1.data\" using 1:4 with linespoints title \"Sockets da Internet: Mux de E/S\", \"/tmp/ep4-resultados-$1.data\" using 1:3 with linespoints title \"Sockets da Internet: Threads\", \"/tmp/ep4-resultados-$1.data\" using 1:2 with linespoints title \"Sockets da Internet: Processos\", \"/tmp/ep4-resultados-$1.data\" using 1:5 with linespoints title \"Sockets Unix: Threads\"
+set output" > /tmp/ep4-resultados-$1.gpi
+
+echo "load \"/tmp/ep4-resultados-100.gpi\"" | gnuplot
+
+rm /tmp/ep4-resultados-$1.gpi
+rm /tmp/ep4-resultados-$1.data
+
+echo 0
 
 
 

@@ -1,18 +1,24 @@
 #!/bin/bash
 
-echo "Verificando os instantes de tempo no journald..."
-dia_ini=$(journalctl -q --since "3 hour ago" | grep ep4-servidor-inet_processos | grep "Passou pelo accept :-)" | head -n 1 | cut -c 1-6)
-hora_ini=$(journalctl -q --since "3 hour ago" | grep ep4-servidor-inet_processos | grep "Passou pelo accept :-)" | head -n 1 | cut -c 8-15)
-data_ini=$(date -d "$dia_ini" +%Y-%m-%d)
-inicio="$data_ini $hora_ini"
-echo "Tempo inicial dos clientes: $inicio"
-dia_fim=$(journalctl -q --since "3 hour ago" | grep ep4-servidor-inet_processos | grep "provavelmente enviou um exit" | tail -n 1 | cut -c 1-6)
-hora_fim=$(journalctl -q --since "3 hour ago" | grep ep4-servidor-inet_processos | grep "provavelmente enviou um exit" | tail -n 1 | cut -c 8-15)
-data_fim=$(date -d "$dia_ini" +%Y-%m-%d)
-fim="$data_fim $hora_fim"
-echo "Tempo final dos clientes: $fim"
-tempo_total=$(dateutils.ddiff "$inicio" "$fim" -f "%0M:%0S")
+echo ">>>>>>> Gerando o gráfico de $1 clientes com arquivos de: ..."
 
-echo ">>>>>>> $1 clientes encerraram a conexão"
-echo ">>>>>>> Tempo para servir os $1 clientes com o ep4-servidor-inet_processos: $tempo_total"
+touch /tmp/ep4-resultados-$1.gpi 
+
+echo "set ydata time
+set timefmt \"%M:%S\"
+set format y \"%M:%S\"
+set xlabel 'Dados transferidos por cliente (MB)'
+set ylabel 'Tempo para atender 100 clientes concorrentes'
+set terminal pdfcairo
+set output \"ep4-resultados-100.pdf\"
+set grid
+set key top left
+plot \"/tmp/ep4-resultados-$1.data\" using 1:4 with linespoints title \"Sockets da Internet: Mux de E/S\", \"/tmp/ep4-resultados-$1.data\" using 1:3 with linespoints title \"Sockets da Internet: Threads\", \"/tmp/ep4-resultados-$1.data\" using 1:2 with linespoints title \"Sockets da Internet: Processos\", \"/tmp/ep4-resultados-$1.data\" using 1:5 with linespoints title \"Sockets Unix: Threads\"
+set output" > /tmp/ep4-resultados-$1.gpi
+
+echo "load \"/tmp/ep4-resultados-100.gpi\"" | gnuplot
+
+rm /tmp/ep4-resultados-$1.gpi
+rm /tmp/ep4-resultados-$1.data
+echo 0
 
