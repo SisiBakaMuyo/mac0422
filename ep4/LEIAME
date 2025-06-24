@@ -1,6 +1,16 @@
 Para rodar o script use o comando:
 
-> bash ep4.sh
+> bash ep4.sh n a1 a2 a3 a4 ... ai
 
+Sendo os argumentos:
 
+1) n: quantidade de clientes
+
+2) ai: valor do tamanho de todos os arquivos que se deseja enviar
+ex: a1=5 a2=10 a3=15 a4=20
+Serao enviados arquivos de 5MB, 10MB, 15MB e 20MB
+
+Assim sendo, se eu quisesse que 30 clientes enviassem menssagens de 2MB, 20Mb e 40Mb o comando ficaria:
+
+> bash ep4.sh 30 2 20 40
 
