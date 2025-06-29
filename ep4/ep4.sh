@@ -123,6 +123,13 @@ for arq_rem in "$@"; do
     ((arq_remc++)) 
 done
 
+rm /tmp/ep4-servidor-inet_processos
+rm /tmp/ep4-servidor-inet_threads
+rm /tmp/ep4-servidor-inet_muxes
+rm /tmp/ep4-servidor-unix_threads
+rm /tmp/ep4-cliente-inet
+rm /tmp/ep4-cliente-unix
+
 echo 0
 
 
